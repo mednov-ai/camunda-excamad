@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
-import Vue from 'vue';
-import Router from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import MigrationView from '@/views/MigrationView.vue';
 import IncidentView from '@/views/IncidentView.vue';
 import HistoryView from '@/views/HistoryView.vue';
@@ -22,7 +20,6 @@ import WhatIsThisView from '@/views/WhatIsThisView.vue';
 import DecisionDefinitionsView from '@/views/DecisionDefinitionsView.vue';
 import Home from '@/views/Home.vue';
 import store from '@/store/store';
-import VueSmartRoute from 'vue-smart-route';
 import DeployTableView from '@/views/DeployTableView.vue';
 import HelpView from '@/views/HelpView.vue';
 import ReportView from '@/views/ReportView.vue';
@@ -36,9 +33,6 @@ import SystemsView from '@/views/SystemsView.vue';
 
 import VariableBatchModifyView from '@/views/VariableBatchModifyView.vue';
 import BatchModificationView from "@/views/BatchModificationView";
-
-Vue.use(Router);
-Vue.use(VueSmartRoute);
 
 const ifNotAuthenticated = (to, from, next) => {
   if (!store.getters.isAuthenticated) {
@@ -62,8 +56,8 @@ function hasQueryParams(route) {
   } else return false;
 }
 
-const router = new Router({
-  //mode: "history",
+const router = createRouter({
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/tasklist',

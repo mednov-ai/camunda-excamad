@@ -1,16 +1,11 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
-// eslint-disable-next-line no-unused-vars
-import createPersistedState from 'vuex-persistedstate';
+import { createStore } from 'vuex';
 import user from './modules/user';
 import auth from './modules/auth';
 import * as access from './modules/accessSetings';
 import { BPMAASURL } from '@/config/settings';
-Vue.use(Vuex);
-
 const debug = process.env.NODE_ENV !== 'production';
 
-export default new Vuex.Store({
+export default createStore({
   modules: {
     user,
     auth
