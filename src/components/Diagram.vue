@@ -75,16 +75,12 @@ import camundaModdleDescriptor from "camunda-bpmn-moddle/resources/camunda";
 import BpmnViewer from "bpmn-js/lib/NavigatedViewer";
 import BpmnModeler from "bpmn-js/lib/Modeler";
 import $ from "jquery";
-import fullscreen from "vue-fullscreen";
-import Vue from "vue";
 import axios from "axios";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faArrowsAlt, faEdit } from "@fortawesome/free-solid-svg-icons";
 import _orderBy from "lodash/orderBy";
 library.add(faArrowsAlt);
 library.add(faEdit);
-Vue.use(fullscreen);
-
 export default {
   name: "Diagram",
   components: {
