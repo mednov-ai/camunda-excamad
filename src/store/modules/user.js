@@ -5,7 +5,6 @@ import {
   USER_ERROR,
   USER_SUCCESS
 } from "../actions/user";
-import Vue from "vue";
 import { AUTH_LOGOUT } from "../actions/auth";
 
 const state = {
@@ -28,11 +27,11 @@ const mutations = {
   },
   [USER_SUCCESS]: (state, resp) => {
     state.status = "success";
-    Vue.set(state, "profile", resp);
+    state.profile = resp;
   },
   [USER_CAMUNDA_SUCCESS]: (state, resp) => {
     state.camundaStatus = "success";
-    Vue.set(state, "camundaProfile", resp);
+    state.camundaProfile = resp;
   },
   [USER_CAMUNDA_ERROR]: (state, resp) => {
     state.camundaStatus = "error";

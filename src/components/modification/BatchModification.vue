@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import VueBootstrapTypeahead from "vue-bootstrap-typeahead";
+import VueBootstrapTypeahead from "vue3-bootstrap-typeahead";
 import vueJsonEditor from 'vue-json-editor'
 
 const START_ACTIVITY_OPTION = {

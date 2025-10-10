@@ -47,9 +47,9 @@
 
 <script>
 import * as URLs from "@/config/camundasUrl";
-import VueSimpleSuggest from "vue-simple-suggest";
+import VueSimpleSuggest from "@vojtechlanka/vue-simple-suggest";
 import { AtomSpinner } from "epic-spinners";
-import "vue-simple-suggest/dist/styles.css"; // Optional CSS
+import "@vojtechlanka/vue-simple-suggest/style.css"; // Optional CSS
 
 export default {
   components: {

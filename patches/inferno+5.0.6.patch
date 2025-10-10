@@ -1,0 +1,15 @@
+diff --git a/node_modules/inferno/package.json b/node_modules/inferno/package.json
+index 1b807e4..c5d80c1 100644
+--- a/node_modules/inferno/package.json
++++ b/node_modules/inferno/package.json
+@@ -30,9 +30,7 @@
+     "url": "https://opencollective.com/inferno",
+     "logo": "https://opencollective.com/inferno/logo.txt"
+   },
+-  "scripts": {
+-    "postinstall": "opencollective postinstall"
+-  },
++  "scripts": {},
+   "rollup": {
+     "bundledDependencies": [
+       "inferno-shared",

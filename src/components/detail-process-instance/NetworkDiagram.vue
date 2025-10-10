@@ -9,19 +9,19 @@
 
       <b-btn class="ml-3" size="sm" @click="setVertical">strict</b-btn>
 
-      <network
+      <VisNetwork
         class="network"
         ref="network"
         :nodes="network.nodes"
         :edges="network.edges"
         :options="network.options"
-      ></network>
+      />
     </b-card>
   </fullscreen>
 </template>
 
 <script>
-import {Network } from "vue2vis";
+import VisNetwork from "@/components/common/VisNetwork.vue";
 import fullscreen from "vue-fullscreen";
 
 export default {
@@ -64,7 +64,7 @@ export default {
   },
   props: ["processInstanceId"],
   components: {
-    Network
+    VisNetwork
   },
   mounted() {
     setTimeout(() => {

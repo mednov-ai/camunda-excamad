@@ -3,53 +3,51 @@
     <h2>Online activity stream (max 150)</h2>
     <GChart v-if="chartData.length >3" type="ColumnChart" :data="chartData"/>
 
-    <timeline>
-      <transition-group name="list" tag="p">
-        <timeline-item v-for="item in activities.slice(0,150)" :key="item.id" bg-color="#33333">
-          <b-card
-            :header="convertDateToHumanStyle(item.endTime)"
-            :title="item.activityId"
-            :border-variant="calculateStyle(item.unRead)"
-          >
-            <b-container class="bv-example-row">
-              <b-row class="text-left">
-                <b-col cols="4">
-                  <p class="card-text">{{item.activityName}}</p>
-                  <p class="card-text">
-                    <b-badge variant="info">{{item.activityType}}</b-badge>
-                  </p>
-                  <p class="card-text">{{item.processDefinitionId}}</p>
-
-                  <router-link
-                    :to="{name:'processdetail', params:{ processInstanceId: item.processInstanceId}, query: {baseurl}}"
-                  >
+    <div class="timeline">
+      <transition-group name="list" tag="div" class="timeline-list">
+        <div v-for="item in activities.slice(0,150)" :key="item.id" class="timeline-item">
+          <div class="timeline-marker"></div>
+          <div class="timeline-card">
+            <b-card
+              :header="convertDateToHumanStyle(item.endTime)"
+              :title="item.activityId"
+              :border-variant="calculateStyle(item.unRead)"
+            >
+              <b-container class="bv-example-row">
+                <b-row class="text-left">
+                  <b-col cols="4">
+                    <p class="card-text">{{item.activityName}}</p>
                     <p class="card-text">
-                      <b>{{item.processInstanceId}}</b>
+                      <b-badge variant="info">{{item.activityType}}</b-badge>
                     </p>
-                  </router-link>
-                </b-col>
-                <b-col cols="8">
-                  <p>Started {{convertDateToHumanStyle(item.startTime)}}</p>
-                  <p v-if="item.endTime">Ended {{convertDateToHumanStyle(item.endTime)}}</p>
-                  <p v-if="item.durationInMillis">Duration (ms) {{item.durationInMillis}}</p>
-                </b-col>
-              </b-row>
-            </b-container>
-          </b-card>
-        </timeline-item>
+                    <p class="card-text">{{item.processDefinitionId}}</p>
+
+                    <router-link
+                      :to="{name:'processdetail', params:{ processInstanceId: item.processInstanceId}, query: {baseurl}}"
+                    >
+                      <p class="card-text">
+                        <b>{{item.processInstanceId}}</b>
+                      </p>
+                    </router-link>
+                  </b-col>
+                  <b-col cols="8">
+                    <p>Started {{convertDateToHumanStyle(item.startTime)}}</p>
+                    <p v-if="item.endTime">Ended {{convertDateToHumanStyle(item.endTime)}}</p>
+                    <p v-if="item.durationInMillis">Duration (ms) {{item.durationInMillis}}</p>
+                  </b-col>
+                </b-row>
+              </b-container>
+            </b-card>
+          </div>
+        </div>
       </transition-group>
-    </timeline>
+    </div>
   </b-card>
 </template>
 
 
 <script>
-import { Timeline, TimelineItem } from "vue-cute-timeline";
 export default {
-  components: {
-    Timeline,
-    TimelineItem
-  },
   name: "Stream",
   props: ["processInstanceId"],
   data() {
@@ -158,6 +156,57 @@ export default {
 };
 </script>
 
+<style scoped>
+.timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 0.4rem;
+  width: 2px;
+  background: #dee2e6;
+}
+
+.timeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  gap: 1rem;
+}
+
+.timeline-marker {
+  position: relative;
+  flex: 0 0 0.8rem;
+  width: 0.8rem;
+}
+
+.timeline-marker::before {
+  content: "";
+  position: absolute;
+  top: 0.75rem;
+  left: -0.35rem;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: #007bff;
+  box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15);
+}
+
+.timeline-card {
+  flex: 1;
+}
+</style>
+
 <style>
 .list-item {
   display: inline-block;
@@ -173,4 +222,3 @@ export default {
   transform: translateY(30px);
 }
 </style>
-

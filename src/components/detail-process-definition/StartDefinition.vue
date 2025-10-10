@@ -107,7 +107,7 @@ import BpmnViewer from "bpmn-js/lib/NavigatedViewer";
 import BpmnModeler from "bpmn-js/lib/Modeler";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
-import VueBootstrapTypeahead from "vue-bootstrap-typeahead";
+import VueBootstrapTypeahead from "vue3-bootstrap-typeahead";
 import { faMinus, faPlus, faPause } from "@fortawesome/free-solid-svg-icons";
 library.add(faMinus, faPlus);
 export default {

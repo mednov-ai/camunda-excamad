@@ -5,18 +5,18 @@
     <p class="text-left">
       <b-btn size="sm" @click="setVertical">strict</b-btn>
     </p>
-    <network
+    <VisNetwork
       class="network"
       ref="network"
       :nodes="network.nodes"
       :edges="network.edges"
       :options="network.options"
-    ></network>
+    />
   </b-card>
 </template>
 
 <script>
-import {Network } from "vue2vis";
+import VisNetwork from "@/components/common/VisNetwork.vue";
 export default {
   data() {
     return {
@@ -37,7 +37,7 @@ export default {
   },
   props: ["processInstanceId"],
   components: {
-    Network
+    VisNetwork
   },
   mounted() {
     setTimeout(() => {
@@ -143,8 +143,6 @@ export default {
 </script>
 
 <style>
-@import "https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.css";
-
 .events {
   text-align: left;
   height: 70px;

@@ -10,11 +10,11 @@
       :title="'Edit variable ' +variableName"
     >
       <label for="variableName">Variable name</label>
-      <b-form-input id="variableName" v-model="variableName" disabled></b-form-input>
+      <b-form-input id="variableName" :model-value="variableName" disabled></b-form-input>
       <label for="variableType">Variable type</label>
-      <b-form-input id="variableType" v-model="variableType" disabled></b-form-input>
+      <b-form-input id="variableType" :model-value="variableType" disabled></b-form-input>
       <label for="variableOldValue">Variable current value</label>
-      <b-form-input id="variableOldValue" v-model="variableOldValue" disabled></b-form-input>
+      <b-form-input id="variableOldValue" :model-value="variableOldValue" disabled></b-form-input>
       <label for="variableNewValue">Variable new value</label>
       <b-form-input id="variableNewValue" v-model="variableNewValue"></b-form-input>
     </b-modal>

@@ -1,75 +1,86 @@
-</<template>
-<div class="jumbotron-fluid">
+<template>
+  <div class="jumbotron-fluid">
     <div class="container">
-        <div class="row">
+      <div class="row">
+        <div class="col-11"></div>
+      </div>
 
-            <div class="col-11">
+      <b-card>
+        <div id="root">
+          <form>
+            <div class="form-group">
+              <label for="exampleInputEmail1">URL Camunda Engine REST</label>
+
+              <div class="row">
+                <div class="col-10">
+                  <div class="input-group mb-3">
+                    <vue-bootstrap-typeahead
+                      :placeholder="privateurl"
+                      style="width: 500px"
+                      @keyup.enter="userSetBaseUrl()"
+                      v-model="privateurl"
+                      @hit="userSetBaseUrl()"
+                      :data="possibleUrl"
+                    />
+
+                    <div class="input-group-append">
+                      <button type="button" class="btn btn-primary" @click="userSetBaseUrl()">
+                        Save
+                      </button>
+                    </div>
+                  </div>
+
+                  <b-badge
+                    v-for="item in list"
+                    :key="item.name"
+                    v-if="list.length > 1"
+                    :variant="calculateVariant(item.name)"
+                    class="mr-2 mt-0"
+                    href="#"
+                    @click="userSetBaserUrlFromBadge(item.name)"
+                    pill
+                  >
+                    {{ item.name }}
+                  </b-badge>
+                </div>
+              </div>
+
+              <small>
+                <b-link href="#" @click="clear">Clear</b-link>
+              </small>
             </div>
+
+            <b-form-checkbox id="process-definition-couters-loading-checkbox" v-model="metadataCountersEnabled">
+              Enable process definition counters loading
+            </b-form-checkbox>
+
+            <b-form-checkbox id="checkbox-1" v-model="enableRestPassword">
+              Enable rest authentication
+            </b-form-checkbox>
+
+            <div v-if="enableRestPassword">
+              <b-form-select v-model="selectedRestType" :options="restAuthTypes"></b-form-select>
+              <div v-if="selectedRestType === 'Basic'">
+                <label for="username">Username</label>
+                <b-form-input id="username" v-model="restUsername" placeholder="Enter username"></b-form-input>
+                <label for="password">Password</label>
+                <b-form-input id="password" v-model="restPassword" type="password" placeholder="Enter password"></b-form-input>
+              </div>
+
+              <div v-if="selectedRestType === 'Bearer'">
+                <label for="restToken">Token</label>
+                <b-form-input id="restToken" v-model="restBearerToken" placeholder="Enter token"></b-form-input>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-primary" @click="userSetBaseUrl()">
+              Save
+            </button>
+          </form>
         </div>
-
-        <b-card>
-            <div id="root">
-
-                <form>
-                    <div class="form-group">
-                        <label for="exampleInputEmail1"></label>URL Camunda Engine REST </label>
-                        </b-form-checkbox>
-
-                        <div class="row">
-                            <div class="col-10">
-                                <div class="input-group mb-3">
-                                    <vue-bootstrap-typeahead :placeholder="privateurl" style="width: 500px" v-on:keyup.enter="userSetBaseUrl()" v-model="privateurl" @hit="userSetBaseUrl()" :data="possibleUrl" />
-
-                                    <div class="input-group-append">
-
-                                        <button type="button" class="btn btn-primary" @click="userSetBaseUrl()">Save</button>
-
-                                    </div>
-
-                                </div>
-                                <b-badge v-bind:key="item" v-if="list.length >1" :variant="calculateVariant(item.name)" class="mr-2 mt-0" href="#" @click="userSetBaserUrlFromBadge(item.name)" pill v-for="item in list">{{item.name}}</b-badge>
-
-                            </div>
-
-                        </div>
-                        <small>
-                            <b-link href="#" @click="clear">Clear</b-link>
-                        </small>
-                        </b-form-group>
-                    </div>
-      
-                    <b-form-checkbox id="process-definition-couters-loading-checkbox" v-model="metadataCountersEnabled">
-                        Enable process definition counters loading
-                    </b-form-checkbox>
-
-                    <b-form-checkbox id="checkbox-1" v-model="enableRestPassword">
-                        Enable rest authentication
-                    </b-form-checkbox>
-
-                    <div v-if="enableRestPassword == true">
-                        <b-form-select v-model="selectedRestType" :options="restAuthTypes"></b-form-select>
-                        <div v-if="selectedRestType=='Basic'">
-                            <label for="username">Username</label>
-                            <b-form-input id="username" v-model="restUsername" placeholder="Enter username"></b-form-input>
-                            <label for="password">Password</label>
-                            <b-form-input id="password" v-model="restPassword" type="password" placeholder="Enter password"></b-form-input>
-                        </div>
-
-                        <div v-if="selectedRestType=='Bearer'">
-                            <label for="restToken">Token</label>
-                            <b-form-input id="restToken" v-model="restBearerToken" placeholder="Enter token"></b-form-input>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-primary" @click="userSetBaseUrl()">Save</button>
-
-                </form>
-
-            </div>
-        </b-card>
-
+      </b-card>
     </div>
-
-</div>
+  </div>
 </template>
 
 <script>
@@ -80,7 +91,7 @@ import {
     AUTH_CAMUNDA_REQUEST
 } from "@/store/actions/auth";
 import * as access from "@/store/modules/accessSetings";
-import VueBootstrapTypeahead from "vue-bootstrap-typeahead";
+import VueBootstrapTypeahead from "vue3-bootstrap-typeahead";
 
 export default {
     name: "BaseURL",

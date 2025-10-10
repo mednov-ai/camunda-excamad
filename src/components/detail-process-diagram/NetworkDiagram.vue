@@ -9,19 +9,19 @@
 
       <b-btn class="ml-3" size="sm" @click="setVertical">strict</b-btn>
 
-      <network
+      <VisNetwork
         class="network"
         ref="network"
         :nodes="network.nodes"
         :edges="network.edges"
         :options="network.options"
-      ></network>
+      />
     </b-card>
   </fullscreen>
 </template>
 
 <script>
-import { Timeline, Graph2d, Network } from "vue2vis";
+import VisNetwork from "@/components/common/VisNetwork.vue";
 import fullscreen from "vue-fullscreen";
 
 export default {
@@ -64,9 +64,7 @@ export default {
   },
   props: ["processInstanceId"],
   components: {
-    
-    
-    Network
+    VisNetwork
   },
   mounted() {
     setTimeout(() => {
@@ -192,11 +190,12 @@ export default {
       var time = "*" + this.convertDateToHumanStyle(item.time) + "*";
       var variableName = "*" + item.variableName + "*";
 
+      let value = "";
       if (item.value instanceof Object == false) {
-        var value = "*" + item.value + "*";
+        value = "*" + item.value + "*";
       }
       if (item.value instanceof Object == true) {
-        var value =
+        value =
           "`\n" +
           JSON.stringify(item.value)
             .replace(/,/g, ",\n\n")
@@ -262,8 +261,6 @@ export default {
 </script>
 
 <style>
-@import "https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.css";
-
 .events {
   text-align: left;
   height: 70px;
