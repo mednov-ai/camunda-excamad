@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { abstractField } from "vue-form-generator";
+import { abstractField } from "@/forms/generatedForm";
 
 export default {
   mixins: [abstractField],

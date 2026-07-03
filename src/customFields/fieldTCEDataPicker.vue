@@ -1,6 +1,6 @@
 <template>
   <div class="superz">
-    <vue-datepicker-local
+    <DateTimeInput
       :local="local"
       clearable
       :placeholder="schema.placeholder"
@@ -12,13 +12,12 @@
 </template>
 
 <script>
-import { abstractField } from "vue-form-generator";
-import VueDatepickerLocal from "vue-datepicker-local";
-import moment from "vue-moment";
+import { abstractField } from "@/forms/generatedForm";
+import DateTimeInput from "@/ui/DateTimeInput.vue";
 
 export default {
   mixins: [abstractField],
-  components: { VueDatepickerLocal },
+  components: { DateTimeInput },
   data: () => ({
     date: "2019-01-01 14:30",
     local: {

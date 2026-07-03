@@ -28,8 +28,7 @@
 
 <script>
 
-import BpmnModdle from "bpmn-moddle";
-import camundaModdle from "camunda-bpmn-moddle/resources/camunda";
+import { parseCamundaBpmnXml } from "@/bpmn/camundaModdle";
 
 export default {
   name: "MoveToken",
@@ -107,8 +106,7 @@ export default {
         });
     },
 
-    readModel() {
-      const moddle = new BpmnModdle({ camunda: camundaModdle });
+    async readModel() {
       const vm = this;
       vm.activityList = [];
 
@@ -120,27 +118,26 @@ export default {
           "bpmn:ExclusiveGateway",
       ];
 
-      moddle.fromXML(this.definitionInXml, (err, definitions) => {
-        definitions.rootElements.forEach(element => {
-          if (element.$type == "bpmn:Process" && element.isExecutable == true) {
-            element.flowElements.forEach(flowelement => {
+      const definitions = await parseCamundaBpmnXml(this.definitionInXml);
+      definitions.rootElements.forEach(element => {
+        if (element.$type == "bpmn:Process" && element.isExecutable == true) {
+          element.flowElements.forEach(flowelement => {
 
-              if (flowelement.$type != "bpmn:SequenceFlow") {
-                vm.activityList.push(flowelement);
-                vm.possibleActivitySimpleArray.push(flowelement.id);
-              }
+            if (flowelement.$type != "bpmn:SequenceFlow") {
+              vm.activityList.push(flowelement);
+              vm.possibleActivitySimpleArray.push(flowelement.id);
+            }
 
-              if (flowelement.$type === "bpmn:SubProcess") {
-                flowelement.flowElements.forEach(subflowelement => {
-                  if (subtaskTags.includes(subflowelement.$type)) {
-                    vm.activityList.push(subflowelement);
-                    vm.possibleActivitySimpleArray.push(subflowelement.id);
-                  }
-                });
-              }
-            });
-          }
-        });
+            if (flowelement.$type === "bpmn:SubProcess") {
+              flowelement.flowElements.forEach(subflowelement => {
+                if (subtaskTags.includes(subflowelement.$type)) {
+                  vm.activityList.push(subflowelement);
+                  vm.possibleActivitySimpleArray.push(subflowelement.id);
+                }
+              });
+            }
+          });
+        }
       });
     },
     moveToken() {

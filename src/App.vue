@@ -36,18 +36,24 @@ export default {
         },
     },
     watch: {
+        "$route.query.baseurl": {
+            immediate: true,
+            handler(newValue) {
+                this.syncBaseUrlFromRoute(newValue);
+            }
+        },
         baseurl(newValue) {
-            this.$router.push({
+            const baseurl = Array.isArray(newValue) ? newValue[0] : String(newValue || "");
+            if (!baseurl || this.$route.query.baseurl === baseurl) {
+                return;
+            }
+            this.$router.replace({
+                path: this.$route.path,
                 query: {
-                    baseurl: newValue
+                    ...this.$route.query,
+                    baseurl
                 }
             })
-        }
-    },
-
-    created() {
-        if (this.$route.query.baseurl) {
-            this.$store.commit("setBaseUrl", this.$route.query.baseurl);
         }
     },
     mounted() {
@@ -77,23 +83,17 @@ export default {
                 .then(() => {});
         }
 
-      if (this.baseurl != null) {
-        if (localStorage.restAuthArray) {
-          const array = JSON.parse(localStorage.restAuthArray)
-          const url = array.find(x => x.url === this.baseurl)
-
-          if (url) {
-            this.$store.commit("setRestsername", url.login);
-            this.$store.commit("setRestpassword", url.password);
-            this.$store.commit("setRestToken", url.JWT);
-            this.$store.commit("setRestAuthType", url.type);
-            this.$store.commit("setRestPasswordEnabled", true);
-            this.$store.commit("setSecureDate", url.date)
-          }
-        }
-      }
     },
     methods: {
+        syncBaseUrlFromRoute(value) {
+            const baseurl = Array.isArray(value) ? value[0] : value;
+            if (baseurl && this.$store.state.baseurl !== baseurl) {
+                this.$store.commit("activateConnectionFromUrl", {
+                    url: baseurl,
+                    temporary: true
+                });
+            }
+        },
         refreshRoute() {
             this.key = this.key + 1;
         },
@@ -120,7 +120,7 @@ export default {
 
 #containerOverRouter {
     max-width: 1400px;
-    margin-top: 110px;
+    padding-top: 1rem;
 }
 
 .content {

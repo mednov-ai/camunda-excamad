@@ -26,7 +26,7 @@
               <b-col cols="4">
                 <label for="createdBefore">Create before</label>
                 <br />
-                <vue-datepicker-local
+                <DateTimeInput
                   id="createdBefore"
                   :local="local"
                   clearable
@@ -37,7 +37,7 @@
               <b-col cols="4">
                 <label for="createdAfter">Create after</label>
                 <br />
-                <vue-datepicker-local
+                <DateTimeInput
                   id="createdAfter"
                   :local="local"
                   clearable
@@ -148,13 +148,13 @@
 
 <script>
 import { library } from "@fortawesome/fontawesome-svg-core";
-import VueDatepickerLocal from "vue-datepicker-local";
+import DateTimeInput from "@/ui/DateTimeInput.vue";
 import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 library.add(faMinus, faPlus);
 
 export default {
   name: "TaskQuery",
-  components: { VueDatepickerLocal },
+  components: { DateTimeInput },
   data() {
     return {
       local: {
@@ -359,15 +359,19 @@ export default {
 
     },
     loadFiltersLocalStorage() {
+      if (!localStorage.taskFilters) {
+        return;
+      }
+
       var array = JSON.parse(localStorage.taskFilters);
+      if (!Array.isArray(array)) {
+        return;
+      }
       array.forEach(element => {
         this.filters.push(element);
       });
-
-
     }
   }
 
 }
 </script>
-

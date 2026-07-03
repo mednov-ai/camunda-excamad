@@ -16,8 +16,7 @@
 </template>
 
 <script>
-import BpmnModdle from "bpmn-moddle";
-import camundaModdle from "camunda-bpmn-moddle/resources/camunda";
+import { parseCamundaBpmnXml } from "@/bpmn/camundaModdle";
 
 export default {
   name: "SendMessage",
@@ -51,19 +50,15 @@ export default {
           this.readModel();
         });
     },
-    readModel() {
-      var moddle = new BpmnModdle({ camunda: camundaModdle });
+    async readModel() {
       var vm = this;
       vm.activityList = [];
-      this.moddle = moddle.fromXML(this.definitionInXml, function(
-        err,
-        definitions
-      ) {
-        definitions.rootElements.forEach(element => {
-          if (element.$type == "bpmn:Process" && element.isExecutable == true) {
-            addEventsFromElement(element);
-          }
-        });
+      const definitions = await parseCamundaBpmnXml(this.definitionInXml);
+      this.moddle = definitions;
+      definitions.rootElements.forEach(element => {
+        if (element.$type == "bpmn:Process" && element.isExecutable == true) {
+          addEventsFromElement(element);
+        }
       });
 
       function addEventsFromElement(flowElement) {

@@ -101,8 +101,8 @@ export default {
               url +
               '" style="border:1px #f2f2f2 none;" name="extAdmin" scrolling="yes" frameborder="1"  height="100%" width="100%" allowfullscreen></iframe>';
 
-            vm.$set(element, "iframeurl", iframeurl);
-            vm.$set(element, "url", url);
+            element.iframeurl = iframeurl;
+            element.url = url;
           });
         });
     }

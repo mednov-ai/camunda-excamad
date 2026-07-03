@@ -3,7 +3,7 @@
     <h2>Complex migration tool</h2>
     <b-card title="1. Select process key">
       <b-card-text>
-        <vue-bootstrap-typeahead
+        <TypeaheadInput
           style="width:100%"
           @hit="selectedDefinition =$event"
           :serializer="serialazier"
@@ -54,7 +54,7 @@
     <br>
     <b-card title="4.Check and run">
       <b-btn variant="outline-success" @click="generateAndMigrate">Generate request</b-btn>
-      <vue-json-editor v-if="migrationBody != null" v-model="migrationBody" :show-btns="true"></vue-json-editor>
+      <JsonEditor v-if="migrationBody != null" v-model="migrationBody" :show-btns="true"></JsonEditor>
 
       <b-btn variant="outline-primary" v-if="migrationBody != null" @click="runMigration">Migrate</b-btn>
     </b-card>
@@ -62,13 +62,13 @@
 </template>
 
 <script>
-import VueBootstrapTypeahead from "vue-bootstrap-typeahead";
-import vueJsonEditor from 'vue-json-editor'
+import TypeaheadInput from "@/ui/TypeaheadInput.vue";
+import JsonEditor from '@/ui/JsonEditor.vue'
 export default {
   name: "complex-migration",
   components: {
-    VueBootstrapTypeahead,
-    vueJsonEditor
+    TypeaheadInput,
+    JsonEditor
   },
   data() {
     return {

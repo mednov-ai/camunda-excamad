@@ -70,20 +70,10 @@ export default {
         .then(response => {
           this.variables = response.data;
 
-          try {
-            this.applicationId = response.data.filter(obj => {
-              
-              return obj.name === "applicationId";
-            })[0].value;
-          }  finally {}
-
-          try {
-            this.applicationId = response.data.filter(obj => {
-              
-              return obj.name === "applicationIntegrationId";
-            })[0].value;
-          } 
-           finally {}
+          const applicationVariable = response.data.find(obj =>
+            obj.name === "applicationId" || obj.name === "applicationIntegrationId"
+          );
+          this.applicationId = applicationVariable ? applicationVariable.value : "";
         });
     }
   }

@@ -2,7 +2,7 @@
 <div>
     <h2> External task </h2>
     <v-client-table :data="externalTaskJobs" :columns="columns" :options="options">
-        <template slot="actions" slot-scope="{ row }">
+        <template #cell(actions)="{ row }">
             <b-btn size="sm" @click="notifyParent(row.processInstanceId)">
                 <font-awesome-icon icon="redo" />Retry</b-btn>
             <b-btn v-if="row.lockExpirationTime !== null" size="sm" class="ml-2" @click="unlockExtTask(row.id)">

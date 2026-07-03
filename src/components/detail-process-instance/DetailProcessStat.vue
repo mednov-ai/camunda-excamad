@@ -13,11 +13,16 @@
             >X</b-btn>
             {{processDetail.id}}
             <router-link
+              v-if="definitionDetail.id"
               :to="{name:'definition', params:{ definitionId: definitionDetail.id}, query: {baseurl}}"
             >{{ definitionDetail.key }}({{definitionDetail.version}})</router-link>
+            <span v-else>
+              {{ definitionDetail.key }}
+              <template v-if="definitionDetail.version">({{ definitionDetail.version }})</template>
+            </span>
           </h3>
         </b-col>
-        <b-col v-if="processInstanceRuntimeData" col lg="2" class="text-right">
+        <b-col v-if="processInstanceRuntimeData.id" col lg="2" class="text-right">
           <b-btn
             class="mt-3"
             v-b-tooltip.hover
@@ -256,4 +261,3 @@ export default {
   }
 };
 </script>
-

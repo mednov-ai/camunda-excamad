@@ -76,7 +76,7 @@ export default {
                 ""
               )
               .then(response => {
-                this.$set(element, "processInstance", response);
+                element.processInstance = response;
               });
           });
 

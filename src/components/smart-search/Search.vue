@@ -1,18 +1,13 @@
 <template>
   <div>
-    <vue-simple-suggest @select="onSelect" v-model="chosen" :list="getList" :filter-by-query="true">
-      <input placeholder="Search anything" type="search">
-      <atom-spinner
-        v-if="ready==false"
-        class="spinner"
-        :animation-duration="1000"
-        :size="30"
-        :color="'#007bff'"
-      />
-      <div slot="suggestion-item" slot-scope="{suggestion}">
-        <div>{{suggestion}}</div>
-      </div>
-    </vue-simple-suggest>
+    <SimpleSuggest
+      v-model="chosen"
+      :list="getList"
+      :filter-by-query="true"
+      :loading="ready === false"
+      placeholder="Search anything"
+      @select="onSelect"
+    />
     <b-button
       v-show="false"
       v-shortkey="['alt','p']"
@@ -21,25 +16,17 @@
     >Open Modal</b-button>
 
     <b-modal no-fade hide-header hide-footer centered @shown="focusMyElement" v-model="showOnP">
-      <vue-simple-suggest
+      <SimpleSuggest
         ref="suggest"
         @select="onSelect"
         v-model="chosen"
         :list="getList"
         :filter-by-query="true"
       >
-        <input class="specialWidth" ref="focusThis" placeholder="Search anything" type="search">
-        <atom-spinner
-          v-if="ready==false"
-          class="spinner"
-          :animation-duration="1000"
-          :size="30"
-          :color="'#007bff'"
-        />
-        <div slot="suggestion-item" slot-scope="{suggestion}">
-          <div>{{suggestion}}</div>
-        </div>
-      </vue-simple-suggest>
+        :loading="ready === false"
+        placeholder="Search anything"
+        input-class="specialWidth"
+      </SimpleSuggest>
     </b-modal>
   </div>
 </template>
@@ -47,14 +34,11 @@
 
 <script>
 import * as URLs from "@/config/camundasUrl";
-import VueSimpleSuggest from "vue-simple-suggest";
-import { AtomSpinner } from "epic-spinners";
-import "vue-simple-suggest/dist/styles.css"; // Optional CSS
+import SimpleSuggest from "@/ui/SimpleSuggest.vue";
 
 export default {
   components: {
-    VueSimpleSuggest,
-    AtomSpinner
+    SimpleSuggest
   },
   data() {
     return {
@@ -66,7 +50,7 @@ export default {
   methods: {
     focusMyElement(e) {
       this.chosen = "";
-      this.$refs.focusThis.focus();
+      this.$refs.suggest?.focus?.();
     },
     tryCheckBusinessKeyInRuntime(businessKey) {
       var vm = this;
@@ -298,12 +282,12 @@ export default {
 </script>
 
 <style>
-.vue-simple-suggest.designed,
-.vue-simple-suggest.designed * {
+.simple-suggest.designed,
+.simple-suggest.designed * {
   width: 470px;
 }
-.vue-simple-suggest.designed .suggestions .suggest-item,
-.vue-simple-suggest.designed .suggestions .misc-item {
+.simple-suggest.designed .suggestions .suggest-item,
+.simple-suggest.designed .suggestions .misc-item {
   padding: 5px 10px;
   border-bottom: solid 1px #d4d4d4;
   font-size: 14px;

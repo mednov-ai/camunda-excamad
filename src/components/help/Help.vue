@@ -1,6 +1,6 @@
 <template>
   <div>
-    <H1>FAQ and Manual</H1>
+    <h1>FAQ and Manual</h1>
     <b-card no-body>
       <b-tabs pills card vertical>
         <b-tab title="1. FAQ" active>
@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import mdViewer from '@/components/help/md-viewer'
+import mdViewer from '@/components/help/md-viewer.vue'
 export default {
   name: "Help",
   components: {

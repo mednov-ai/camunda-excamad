@@ -319,10 +319,8 @@ export default {
           var vm = this;
           this.ready = true;
           this.incidents.forEach(incident => {
-            if (!incident.incidentMessage) {
-              vm.$set(incident, "globalRoot", false);
-            } else {
-              vm.$set(incident, "globalRoot", true);
+            incident.globalRoot = Boolean(incident.incidentMessage);
+            if (incident.globalRoot) {
               this.incidentsToShow.push(incident);
             }
           });

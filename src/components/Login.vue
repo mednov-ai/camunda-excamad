@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-navbar-nav v-show="false" class="ml-auto">
+    <b-navbar-nav v-show="false" class="ms-auto">
       <b-nav-form>
         <b-button
           v-b-modal.modal1
@@ -8,14 +8,14 @@
        
           variant="outline-success"
           size="sm"
-          class="ml-2 my-2 my-sm-0"
+          class="ms-2 my-2 my-sm-0"
         >Login</b-button>
         <b-button
           variant="outline-primary"
         
           @click="logout"
           size="sm"
-          class="ml-2 my-2 my-sm-0"
+          class="ms-2 my-2 my-sm-0"
         >
           <img class="face" :src="calculatePhoto(profile.userName)" />
           <small>

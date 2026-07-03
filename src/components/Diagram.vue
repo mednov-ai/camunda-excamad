@@ -2,11 +2,6 @@
   <div :key="componentKey">
     <fullscreen ref="fullscreen" @change="fullscreenChange">
       <b-card bg-variant="light" text-variant="dark">
-        <link rel="stylesheet" href="https://unpkg.com/bpmn-js@2.5.2/dist/assets/diagram-js.css">
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/bpmn-js@2.5.2/dist/assets/bpmn-font/css/bpmn.css"
-        >
         <b-btn class="incanvas" @click="toggle" size="sm" variant="outline-success">
           <font-awesome-icon icon="arrows-alt"/>
         </b-btn>
@@ -17,27 +12,15 @@
           :size="60"
           :color="'#007bff'"
         />
-        <div id="canvas" :style="defaultstyle"></div>
+        <div ref="canvas" class="diagram-canvas" :style="defaultstyle"></div>
 
-        <div v-if="editMode" class="properties-panel-parent" id="js-properties-panel"></div>
+        <div v-if="editMode" ref="propertiesPanel" class="properties-panel-parent"></div>
         <ul class="buttons" v-if="editMode">
           <li>
-            <a
-              @mouseover="saveXML"
-              variant="outline-primary"
-              @click="saveXML"
-              :href="hrefAndDownload.href"
-              :download="hrefAndDownload.download"
-            >Download .bpmn</a>
+            <button type="button" @click="saveXML">Download .bpmn</button>
           </li>
           <li>
-            <a
-              @mouseover="saveSVG"
-              id="js-download-svg"
-              @click="saveSVG"
-              :href="hrefAndDownload.href"
-              :download="hrefAndDownload.download"
-            >Download .svg</a>
+            <button type="button" @click="saveSVG">Download .svg</button>
           </li>
         </ul>
       </b-card>
@@ -61,30 +44,25 @@
     
 
 
-<script src="https://unpkg.com/bpmn-js@2.5.2/dist/bpmn-modeler.development.js"></script>
-<script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
-
 <script>
 import { AtomSpinner } from "epic-spinners";
-import BpmnModdle from "bpmn-moddle";
-import camundaModdle from "camunda-bpmn-moddle/resources/camunda";
-import camundaExtensionModule from "camunda-bpmn-moddle/lib";
-import propertiesPanelModule from "./bpmn-js-properties-panel";
-import propertiesProviderModule from "./bpmn-js-properties-panel/lib/provider/camunda";
-import camundaModdleDescriptor from "camunda-bpmn-moddle/resources/camunda";
-import BpmnViewer from "bpmn-js/lib/NavigatedViewer";
-import BpmnModeler from "bpmn-js/lib/Modeler";
 import $ from "jquery";
-import fullscreen from "vue-fullscreen";
-import Vue from "vue";
-import axios from "axios";
+import fullscreen from "@/plugins/fullscreen";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faArrowsAlt, faEdit } from "@fortawesome/free-solid-svg-icons";
 import _orderBy from "lodash/orderBy";
+import { parseCamundaBpmnXml } from "@/bpmn/camundaModdle";
+import {
+  createDiagramModeler,
+  createDiagramViewer,
+  destroyDiagram,
+  importDiagramXml,
+  saveDiagramSvg,
+  saveDiagramXml
+} from "@/bpmn/diagramRuntime";
+import { bpmnRuntimeDependencies } from "@/bpmn/diagramRuntimeDependencies";
 library.add(faArrowsAlt);
 library.add(faEdit);
-Vue.use(fullscreen);
-
 export default {
   name: "Diagram",
   components: {
@@ -121,24 +99,15 @@ export default {
       elementDetails: "",
       jiraKey: 0,
       componentKey: "",
-      container: "",
       activityId: "",
       moddleElement: "",
       processId: "",
       activityHistory: [],
       defaultstyle: "height: 350px",
       fullscreen: false,
-      hrefAndDownload: {
-        href: "",
-        download: ""
-      },
-
       wasBuiled: false,
       fieldsToPass: {}
     };
-  },
-  created() {
-    this.container = "#canvas";
   },
   mounted() {
 
@@ -150,13 +119,13 @@ export default {
     }, 500);
 
   },
+  beforeUnmount() {
+    destroyDiagram(this.globalViewer);
+    this.globalViewer = "";
+  },
   methods: {
-    readModdle() {
-      vm = this;
-      var moddle = new BpmnModdle();
-      moddle.fromXML(this.processDefinitionInXml, function (err, definitions) {
-        vm.elementsOfDiagram = definitions;
-      });
+    async readModdle() {
+      this.elementsOfDiagram = await parseCamundaBpmnXml(this.processDefinitionInXml);
     },
 
     changeEditMode() {
@@ -176,39 +145,41 @@ export default {
       this.fullscreen = fullscreen;
     },
 
-    saveXML() {
-      var stringXml = "";
-      this.globalViewer.saveXML({ format: true }, function (err, xml) {
-        stringXml = xml;
-      });
-      var encodedData = encodeURIComponent(stringXml);
-      var name = this.diagramKey.split(".").join("") + ".bpmn";
-      this.hrefAndDownload.href =
-        "data:application/bpmn20-xml;charset=UTF-8," + stringXml;
-      this.hrefAndDownload.download = name;
+    async saveXML() {
+      const stringXml = await saveDiagramXml(this.globalViewer);
+      this.downloadTextFile(stringXml, this.downloadName("bpmn"), "application/bpmn20-xml;charset=UTF-8");
     },
-    saveSVG() {
-      var stringSVG = "";
-      this.globalViewer.saveSVG({ format: true }, function (err, svg) {
-        stringSVG = svg;
-      });
-      var encodedDataSVG = encodeURIComponent(stringSVG);
-      var nameSVG = this.diagramKey.split(".").join("") + ".svg";
-      this.hrefAndDownload.href =
-        "data:application/bpmn20-xml;charset=UTF-8," + stringSVG;
-      this.hrefAndDownload.download = nameSVG;
+    async saveSVG() {
+      const stringSVG = await saveDiagramSvg(this.globalViewer);
+      this.downloadTextFile(stringSVG, this.downloadName("svg"), "image/svg+xml;charset=UTF-8");
+    },
+    downloadName(extension) {
+      const source = this.diagramKey || this.processDefinitionId || "diagram";
+      return source.toString().split(".").join("").replace(/[^a-zA-Z0-9_-]+/g, "_") + "." + extension;
+    },
+    downloadTextFile(content, filename, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     },
 
-    getAndBuild() {
+    async getAndBuild() {
       if (this.wasBuiled == false) {
-        this.getXml().then(response => {
-          var viewer = this.buildViewer();
-          this.globalViewer = viewer;
-          this.wasBuiled = true;
-          this.ready = true;
-          this.importXML(viewer);
-          this.eventBusDispatcher(viewer);
-        });
+        this.ready = false;
+        await this.getXml();
+        destroyDiagram(this.globalViewer);
+        var viewer = await this.buildViewer();
+        this.globalViewer = viewer;
+        this.eventBusDispatcher(viewer);
+        await this.importXML(viewer);
+        this.wasBuiled = true;
+        this.ready = true;
       }
     },
     getXml: async function () {
@@ -270,29 +241,15 @@ export default {
       return output;
     },
     returnAllarm: function (item) { },
-    buildViewer: function () {
-      var vm = this;
+    buildViewer: async function () {
       if (this.editMode != true) {
-        var viewer = new BpmnViewer({
-          container: vm.container
-        });
+        return createDiagramViewer(this.$refs.canvas, bpmnRuntimeDependencies);
       }
 
       if (this.editMode == true) {
-        this.readModdle();
-        var viewer = new BpmnModeler({
-          container: vm.container,
-          propertiesPanel: {
-            parent: "#js-properties-panel"
-          },
-          additionalModules: [propertiesPanelModule, propertiesProviderModule],
-          moddleExtensions: {
-            camunda: camundaModdleDescriptor
-          }
-        });
+        await this.readModdle();
+        return createDiagramModeler(this.$refs.canvas, this.$refs.propertiesPanel, bpmnRuntimeDependencies);
       }
-
-      return viewer;
     },
     eventBusDispatcher: function (viewer) {
       if (true) {
@@ -310,24 +267,23 @@ export default {
         ];
 
         events.forEach(function (event) {
-          eventBus.on(event, function (e) {
+          eventBus.on(event, async function (e) {
             // e.element = the model element
             // e.gfx = the graphical element
 
             vm.moddleElement = e.element.businessObject;
-            var stringXml = "";
-            vm.globalViewer.saveXML({ format: true }, function (err, xml) {
-              stringXml = xml;
-            });
+            var stringXml = await saveDiagramXml(vm.globalViewer);
             vm.$emit("digaramInXml", stringXml);
             vm.$emit("clickedOnDiagram", e.element.businessObject);
 
-            var moddle = new BpmnModdle({ camunda: camundaModdle });
-
             if (vm.moddleElement.$type == "bpmn:UserTask") {
-              vm.fieldsToPass =
-                vm.moddleElement.extensionElements.values[0].fields;
-              /*    var newField = moddle.create("camunda:FormField");
+              const formData = vm.moddleElement.extensionElements &&
+                vm.moddleElement.extensionElements.values &&
+                vm.moddleElement.extensionElements.values.find(value => value.$type === "camunda:FormData");
+
+              vm.fieldsToPass = formData && formData.fields ? formData.fields : [];
+              /*    var moddle = createCamundaBpmnModdle();
+              var newField = moddle.create("camunda:FormField");
               newField.id = "girerg";
               newField.label = "testLabel";
               newField.type = "string";
@@ -545,12 +501,11 @@ export default {
         });
       }
     },
-    importXML: function (bpmnViewer) {
-      bpmnViewer.importXML(this.processDefinitionInXml);
+    importXML: async function (bpmnViewer) {
+      await importDiagramXml(bpmnViewer, this.processDefinitionInXml);
+      bpmnViewer.get("canvas").zoom("fit-viewport");
       if (this.processActivityToShowArray != null || this.statistics != null) {
-        setTimeout(() => {
-          this.drawOverlays(bpmnViewer);
-        }, 50);
+        this.drawOverlays(bpmnViewer);
       }
     }
   }
@@ -558,10 +513,9 @@ export default {
 </script>
 
 <style lang="less">
-@import "styles/properties";
 html,
 body,
-#canvas {
+.diagram-canvas {
   height: 100%;
   padding: 0;
   margin: 0;
@@ -667,18 +621,18 @@ body,
   padding-bottom: 70px;
   min-height: 100%;
 }
-.buttons > li > a {
+.buttons > li > button {
   background: #ddd;
   border: solid 1px #666;
   display: inline-block;
   padding: 5px;
 }
 
-.buttons a {
+.buttons button {
   opacity: 0.3;
 }
 
-.buttons a.active {
+.buttons button.active {
   opacity: 1;
 }
 

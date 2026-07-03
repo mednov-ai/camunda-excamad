@@ -7,7 +7,9 @@
         :options="options"
         id="inlineFormCustomSelectPref"
       >
-        <option slot="first" :value="null">Choose...</option>
+        <template #first>
+          <option :value="null">Choose...</option>
+        </template>
       </b-form-select>
       <b-input v-model="variable" class="mb-2 mr-sm-2 mb-sm-0" placeholder="applicationId"/>
       <b-input-group left="@" class="mb-2 mr-sm-2 mb-sm-0">

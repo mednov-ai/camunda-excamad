@@ -78,11 +78,11 @@ export default {
                 .then(response => {
                   itemsProcessed++;
                   if (response.data != null) {
-                    this.$set(element, "processDefinition", response.data);
+                    element.processDefinition = response.data;
                     this.deployedProcess.push(element);
                   }
                   if (response.data == null) {
-                    this.$set(element, "processDefinition");
+                    element.processDefinition = undefined;
                     this.deployedProcess.push(element);
                   }
                 });

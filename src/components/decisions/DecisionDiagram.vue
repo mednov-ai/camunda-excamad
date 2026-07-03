@@ -31,7 +31,7 @@
         :diagramInXML="newSavedXML"
       ></deploy>
     </div>
-    <div id="canvasDes" :key="componentKey" :style="defaultstyle"></div>
+    <div ref="canvas" :key="componentKey" :style="defaultstyle"></div>
   </div>
 </template>
 
@@ -39,11 +39,10 @@
 
 <script>
 import * as api from "@/api/api";
-import DmnJS from "dmn-js";
-import DmnModdle from "dmn-moddle";
-import camundaModdle from "camunda-dmn-moddle/resources/camunda";
-import Modeler from "dmn-js/lib/Modeler";
-import $ from "jquery";
+import DmnViewer from "dmn-js/lib/Viewer";
+import DmnModeler from "dmn-js/lib/Modeler";
+import { DmnModdle } from "dmn-moddle";
+import camundaModdle from "camunda-dmn-moddle/resources/camunda.json";
 
 export default {
   name: "DecisionDiagram",
@@ -75,12 +74,14 @@ export default {
     }
   },
   watch: {
-    editMode: function (newValue, OldValue) {
-      this.getDecisionInXml().then(() => {
-        this.BuildViewerDiagram();
-        this.readXML();
-      });
+    editMode: async function () {
+      await this.getDecisionInXml();
+      await this.BuildViewerDiagram();
+      await this.readXML();
     }
+  },
+  beforeUnmount() {
+    this.destroyViewer();
   },
 
   methods: {
@@ -91,21 +92,13 @@ export default {
     setCommited() {
       this.wasCommited = true;
     },
-    readXML() {
+    async readXML() {
       var moddle = new DmnModdle({ camunda: camundaModdle });
-      var vm = this;
-      var result = moddle.fromXML(
+      const { rootElement } = await moddle.fromXML(
         this.decisionInXml.dmnXml,
-        "dmn:Definitions",
-        "",
-        function (err, proc) {
-          if (err) {
-          }
-          if (!err) {
-            vm.dmnModdle = proc;
-          }
-        }
+        "dmn:Definitions"
       );
+      this.dmnModdle = rootElement;
     },
 
     getDecisionInXml: async function () {
@@ -125,52 +118,48 @@ export default {
         this.decisionMeta = response.data;
       })
     },
-    SaveXML() {
-      var vm = this;
-      this.globalModeler.saveXML({ format: true }, function (err, xml) {
-        if (err) {
-          return console.error("could not save DMN 1.1 diagram", err);
-        }
-
-        vm.newSavedXML = xml;
-        vm.$notify({
-          group: "foo",
-          title: "Definitions saved and ready to deploy",
-          type: "success"
-        });
+    async SaveXML() {
+      const { xml } = await this.globalModeler.saveXML({ format: true });
+      this.newSavedXML = xml;
+      this.$notify({
+        group: "foo",
+        title: "Definitions saved and ready to deploy",
+        type: "success"
       });
     },
 
-    BuildViewerDiagram() {
-      var vm = this;
+    destroyViewer() {
+      if (this.globalModeler && typeof this.globalModeler.destroy === "function") {
+        this.globalModeler.destroy();
+      }
+      this.globalModeler = "";
+    },
+
+    async BuildViewerDiagram() {
+      this.destroyViewer();
       if (this.editMode == false) {
-        var dmnViewer = new DmnJS({
-          container: "#canvasDes"
+        var dmnViewer = new DmnViewer({
+          container: this.$refs.canvas
         });
       }
       if (this.editMode == true) {
-         dmnViewer = new Modeler({
-          container: "#canvasDes"
+         dmnViewer = new DmnModeler({
+          container: this.$refs.canvas
         });
-        this.globalModeler = dmnViewer;
       }
+      this.globalModeler = dmnViewer;
 
-      dmnViewer.importXML(vm.decisionInXml.dmnXml, function (err) {
-        // access active viewer components
-        var activeViewer = dmnViewer.getActiveViewer();
-        // access active editor components
-        var canvas = activeViewer.get("canvasDes");
-        // zoom to fit full viewport
-        canvas.zoom("fit-viewport");
-      });
+      await dmnViewer.importXML(this.decisionInXml.dmnXml);
+      var activeViewer = dmnViewer.getActiveViewer();
+      var canvas = activeViewer.get("canvas");
+      canvas.zoom("fit-viewport");
     }
   },
-  mounted() {
-    this.getDecisionInXml().then(() => {
-      this.BuildViewerDiagram();
-      this.readXML();
-      this.getDeicionsMeta();
-    });
+  async mounted() {
+    await this.getDecisionInXml();
+    await this.BuildViewerDiagram();
+    await this.readXML();
+    this.getDeicionsMeta();
   }
 };
 </script>

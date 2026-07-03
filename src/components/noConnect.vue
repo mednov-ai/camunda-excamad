@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <H2 v-if="!baseurl">Start with
+    <h2 v-if="!baseurl">Start with
       <router-link to="/settings">Camunda Endpoint URL</router-link>
-    </H2>
+    </h2>
     <b-card
       v-if="baseurl"
       overlay
@@ -36,4 +36,3 @@ export default {
   background: #0000006e;
 }
 </style>
-

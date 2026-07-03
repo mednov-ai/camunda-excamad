@@ -1,9 +1,9 @@
 <template>
   <div id="Deployments">
     <b-table hover :items="deployments" :fields="fields" striped caption-top>
-      <template slot="table-caption">Total {{totalResult}}</template>
+      <template #table-caption>Total {{totalResult}}</template>
 
-      <template slot="show_details" slot-scope="row">
+      <template #cell(show_details)="row">
         <b-button
           variant="link"
           size="sm"
@@ -12,7 +12,7 @@
         >{{ row.detailsShowing ? 'Hide' : 'Show'}} Details</b-button>
       </template>
 
-      <template slot="row-details" slot-scope="row">
+      <template #row-details="row">
         <b-card>
           <li v-bind:key="resourse.name" v-for="resourse in row.item.resourses">{{resourse.name}}</li>
 
@@ -62,7 +62,7 @@ export default {
       this.$api()
         .get("/deployment/" + row.item.id + "/resources")
         .then(response => {
-          this.$set(row.item, "resourses", response.data);
+          row.item.resourses = response.data;
         });
     },
     getDeployments() {
@@ -79,7 +79,7 @@ export default {
             element.deploymentTime = this.convertDateToHumanStyle(
               element.deploymentTime
             );
-            this.$set(element, "_showDetails", false);
+            element._showDetails = false;
           });
         });
     },

@@ -1,7 +1,7 @@
 <template>
   <div id="groups">
     <b-table hover :items="groupsFromBackEnd" :fields="fields" striped caption-top>
-      <template slot="show_details" slot-scope="row">
+      <template #cell(show_details)="row">
         <b-button
           variant="link"
           size="sm"
@@ -10,7 +10,7 @@
         >{{ row.detailsShowing ? 'Hide' : 'Show'}} users</b-button>
       </template>
 
-      <template slot="row-details">
+      <template #row-details>
         <b-card>
           <li v-bind:key="item" v-for="item in singleTonUsers">
             <b>{{item.id}}</b>
@@ -60,7 +60,7 @@ export default {
       this.$api().get('/group').then(response => {
         this.groupsFromBackEnd = response.data;
         this.groupsFromBackEnd.forEach(element => {
-          this.$set(element, "_showDetails", false);
+          element._showDetails = false;
         })
       })
     },

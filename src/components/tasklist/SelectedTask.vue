@@ -101,10 +101,12 @@
               class="text-left mb-3"
             >
               {{item.message}}
-              <em slot="footer">
+              <template #footer>
+                <em>
                 <img class="face" :src="calculatePhoto(item.userId)">
                 {{item.userId}}
-              </em>
+                </em>
+              </template>
             </b-card>
           </b-card>
         </div>

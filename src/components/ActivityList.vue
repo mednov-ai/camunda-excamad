@@ -198,8 +198,8 @@ export default {
         .then(value => {
           this.currentProcessHistoryElements = value;
           this.currentProcessHistoryElements.forEach(element => {
-            this.$set(element, "isSelectedFrom", false);
-            this.$set(element, "isSelectedTo", false);
+            element.isSelectedFrom = false;
+            element.isSelectedTo = false;
           });
         });
     },
@@ -246,5 +246,4 @@ export default {
   }
 };
 </script>
-
 

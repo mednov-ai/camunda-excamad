@@ -44,7 +44,7 @@
 
 
 <script>
-import { Timeline, TimelineItem } from "vue-cute-timeline";
+import { Timeline, TimelineItem } from "@/ui/timeline";
 export default {
   components: {
     Timeline,
@@ -112,7 +112,6 @@ export default {
       //   var b = this.activitiesAutoLoad;
       //   this.uniqArray = b.filter(o => !a.find(o2 => o.id === o2.id));
       //   this.uniqArray.forEach(element => {
-      //     this.$set(element, "unRead", true);
       //     this.activities.unshift(element);
       //   });
       // }
@@ -129,7 +128,6 @@ export default {
       //   var b2 = this.activitiesAutoLoad;
       //   this.uniqArray = b2.filter(o => !a2.find(o2 => o.id === o2.id));
       //   this.uniqArray.forEach(element => {
-      //     this.$set(element, "unRead", true);
       //     this.activities.unshift(element);
       //   });
       // }
@@ -173,4 +171,3 @@ export default {
   transform: translateY(30px);
 }
 </style>
-

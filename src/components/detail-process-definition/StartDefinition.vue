@@ -83,7 +83,7 @@
       <br>
       <b-form-checkbox v-model="startFromSpecificActivity">Start from specific activity</b-form-checkbox>
       <div v-if="startFromSpecificActivity">
-        <vue-bootstrap-typeahead
+        <TypeaheadInput
           style="width:700px"
           @hit="selectedActivity =$event"
           :serializer="serialazier"
@@ -98,23 +98,17 @@
 
 <script>
 import * as api from "@/api/api";
-import BpmnModdle from "bpmn-moddle";
-import camundaModdle from "camunda-bpmn-moddle/resources/camunda";
-import camundaExtensionModule from "camunda-bpmn-moddle/lib";
-
-import camundaModdleDescriptor from "camunda-bpmn-moddle/resources/camunda";
-import BpmnViewer from "bpmn-js/lib/NavigatedViewer";
-import BpmnModeler from "bpmn-js/lib/Modeler";
+import { parseCamundaBpmnXml } from "@/bpmn/camundaModdle";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
-import VueBootstrapTypeahead from "vue-bootstrap-typeahead";
+import TypeaheadInput from "@/ui/TypeaheadInput.vue";
 import { faMinus, faPlus, faPause } from "@fortawesome/free-solid-svg-icons";
 library.add(faMinus, faPlus);
 export default {
   name: "StartDevinition",
   props: ["definitionId"],
   components: {
-    VueBootstrapTypeahead
+    TypeaheadInput
   },
   data() {
     return {
@@ -307,23 +301,19 @@ export default {
         return JSON.stringify(value);
       } else return value;
     },
-    readModel() {
-      var moddle = new BpmnModdle({ camunda: camundaModdle });
+    async readModel() {
       var vm = this;
       vm.activityList = [];
-      this.moddle = moddle.fromXML(this.definitionInXml, function (
-        err,
-        definitions
-      ) {
-        definitions.rootElements.forEach(element => {
-          if (element.$type == "bpmn:Process" && element.isExecutable == true) {
-            element.flowElements.forEach(flowelement => {
-              if (flowelement.$type != "bpmn:SequenceFlow") {
-                vm.activityList.push(flowelement);
-              }
-            });
-          }
-        });
+      const definitions = await parseCamundaBpmnXml(this.definitionInXml);
+      this.moddle = definitions;
+      definitions.rootElements.forEach(element => {
+        if (element.$type == "bpmn:Process" && element.isExecutable == true) {
+          element.flowElements.forEach(flowelement => {
+            if (flowelement.$type != "bpmn:SequenceFlow") {
+              vm.activityList.push(flowelement);
+            }
+          });
+        }
       });
     }
   },

@@ -8,7 +8,7 @@
     >Audit {{applicationId}}</b-btn>
     <b-link class="mb-2 ml-3" target="blank" :href="splunkUrl">Splunk {{applicationId}}</b-link>
     <b-collapse id="collapse1" class="mt-2">
-      <vue-friendly-iframe :src="auditUrl"></vue-friendly-iframe>
+      <friendly-iframe :src="auditUrl"></friendly-iframe>
     </b-collapse>
   </div>
 </template>
@@ -72,7 +72,7 @@ export default {
 </script>
 
 <style>
-.vue-friendly-iframe iframe {
+.friendly-iframe iframe {
   width: 1000px;
   height: 1000px;
 }

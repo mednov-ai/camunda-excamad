@@ -15,10 +15,10 @@
     </b-form>
 
     <b-table small :busy="!(ready == true)" bordered striped :filter="filter" :fields="fields" :items="processDefinitions" caption-top>
-        <template slot="table-caption">
+        <template #table-caption>
             Total on server {{totalResult}}
             <div v-if="totalPage>1">
-                <b-pagination-nav align="center" size="sm" base-url="#" number-of-pages="totalPage" v-model="currentPage" />
+                <b-pagination-nav align="center" size="sm" base-url="#" :number-of-pages="totalPage" v-model="currentPage" />
             </div>
         </template>
         <template v-slot:cell(show_details)="row">
@@ -39,7 +39,7 @@
         </template>
     </b-table>
     <div v-if="totalPage>1">
-        <b-pagination-nav align="center" size="sm" base-url="#" number-of-pages="totalPage" v-model="currentPage" />
+        <b-pagination-nav align="center" size="sm" base-url="#" :number-of-pages="totalPage" v-model="currentPage" />
     </div>
 </div>
 </template>
@@ -51,8 +51,8 @@ import {
 import {
     faSearch
 } from "@fortawesome/free-solid-svg-icons";
+import _ from "lodash";
 
-var _ = require("lodash");
 import * as api from "@/api/api";
 library.add(faSearch);
 export default {
@@ -150,11 +150,11 @@ export default {
                         return it.id == this.processDefinitions[index].id
                     })[0];
 
-                    this.$set(this.processDefinitions[index], "activeCount", currentStat.instances);
+                    this.processDefinitions[index].activeCount = currentStat.instances;
                     if (currentStat.incidents.length > 0) {
-                        this.$set(this.processDefinitions[index], "incidentCount", currentStat.incidents[0].incidentCount);
+                        this.processDefinitions[index].incidentCount = currentStat.incidents[0].incidentCount;
                     } else {
-                        this.$set(this.processDefinitions[index], "incidentCount", 0);
+                        this.processDefinitions[index].incidentCount = 0;
                     }
                     var dangerKoef = 0;
                     var cellVar = {
@@ -166,12 +166,12 @@ export default {
 
                     if (dangerKoef > 0 && dangerKoef < 0.15) {
                         cellVar.incidentCount = "warning";
-                        this.$set(this.processDefinitions[index], "_cellVariants", cellVar);
+                        this.processDefinitions[index]._cellVariants = cellVar;
                     }
 
                     if (dangerKoef >= 0.15) {
                         cellVar.incidentCount = "danger";
-                        this.$set(this.processDefinitions[index], "_cellVariants", cellVar);
+                        this.processDefinitions[index]._cellVariants = cellVar;
                     }
 
                 }
@@ -244,7 +244,7 @@ export default {
                 .then(response => {
                     this.processDefinitions = response.data;
                     this.processDefinitions.forEach(element => {
-                        this.$set(element, "_showDetails", false);
+                        element._showDetails = false;
                     });
                     this.ready = true;
                     this.getProcessInstanceStatistics();
@@ -296,14 +296,13 @@ export default {
             this.processDefinitionsStringArray = [];
             for (let index = 0; index < this.processDefinitions.length; index++) {
 
-                //this.$set(this.processDefinitions[index], "endedCount", 0);
-                this.$set(this.processDefinitions[index], "humanTaskCount", 0);
-                this.$set(this.processDefinitions[index], "isSelectedFrom", false);
-                this.$set(this.processDefinitions[index], "isSelectedTo", false);
-                this.$set(this.processDefinitions[index], "showModal", false);
+                this.processDefinitions[index].humanTaskCount = 0;
+                this.processDefinitions[index].isSelectedFrom = false;
+                this.processDefinitions[index].isSelectedTo = false;
+                this.processDefinitions[index].showModal = false;
 
-                this.$set(this.processDefinitions[index], "deployTimeString", null);
-                this.$set(this.processDefinitions[index], "deployTime", null);
+                this.processDefinitions[index].deployTimeString = null;
+                this.processDefinitions[index].deployTime = null;
 
                 /*   this.$api()
           .get(

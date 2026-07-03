@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import {Network } from "vue2vis";
-import fullscreen from "vue-fullscreen";
+import {Network } from "@/visualization/visNetwork";
+import fullscreen from "@/plugins/fullscreen";
 
 export default {
   data() {
@@ -59,6 +59,7 @@ export default {
           }
         }
       },
+      activities: [],
       historyDetails: []
     };
   },
@@ -67,18 +68,16 @@ export default {
     Network
   },
   mounted() {
-    setTimeout(() => {
-      this.addNodesFromArray();
-    }, 500);
-    setTimeout(() => {
-      this.getHistoryDetails();
-    }, 1500);
+    this.loadHistoryDurationDiagram();
   },
   watch: {
     fullscreen: function (val) {
       if (val == false) {
         this.toggleback();
       }
+    },
+    processInstanceId() {
+      this.loadHistoryDurationDiagram();
     }
   },
   methods: {
@@ -86,8 +85,17 @@ export default {
       this.fullscreen = fullscreen;
     },
     setVertical() {
-      this.network.options.layout.hierarchical = !this.network.options.layout
-        .hierarchical;
+      this.network = {
+        ...this.network,
+        options: {
+          ...this.network.options,
+          layout: {
+            ...this.network.options.layout,
+            hierarchical: !this.network.options.layout.hierarchical
+          }
+        }
+      };
+      this.$nextTick(() => this.fitNetwork());
     },
     toggle() {
       this.$refs["fullscreen"].toggle(); // recommended
@@ -98,6 +106,9 @@ export default {
       // this.defaultstyle = "height: 600px";
     },
     returnShape: function (item) {
+      if (!item) {
+        return "triangle";
+      }
       if (item.indexOf("Event") !== -1 || item.indexOf("event") !== -1) {
         return "dot";
       }
@@ -112,6 +123,9 @@ export default {
       } else return "triangle";
     },
     returnColor: function (item) {
+      if (!item) {
+        return undefined;
+      }
       if (item.indexOf("Event") !== -1 || item.indexOf("event") !== -1) {
         return "#83d0f2";
       }
@@ -127,81 +141,154 @@ export default {
     },
 
     returnLabel: function (item) {
-      var name = item.id;
-      var duratonInMinutes =
-        Math.round((item.durationInMillis / 60000) * 100) / 100;
-      if (duratonInMinutes == 0) {
-        duratonInMinutes = "";
+      const name = item.id || item.activityId || "";
+      const duration = this.formatDuration(item.durationInMillis);
+      return duration ? name + "\n" + duration : name;
+    },
+    formatDuration(durationInMillis) {
+      const duration = Number(durationInMillis);
+
+      if (!Number.isFinite(duration) || duration < 0) {
+        return "";
       }
-      var delimiter = "\n";
-      return name;
+      if (duration < 1000) {
+        return Math.round(duration) + " ms";
+      }
+      if (duration < 60000) {
+        return Math.round((duration / 1000) * 100) / 100 + " sec";
+      }
+
+      return Math.round((duration / 60000) * 100) / 100 + " min";
     },
     convertDateToHumanStyle: function (date) {
+      if (!date) {
+        return "";
+      }
       var cal = this.$momenttrue(date).format("DD.MM.YYYY, H:mm:ss");
 
       return cal;
     },
 
     getIdByInstance(item) { },
-    getHistoryDetails() {
-      this.$api()
-        .get(
-          "/history/detail?historicVariableUpdates=true&sortBy=time&sortOrder=desc&processInstanceId=" +
-          this.processInstanceId
-        )
-        .then(response => {
-          this.historyDetails = response.data.slice(-100);
-          for (var i = 0; i < this.historyDetails.length; i++) {
-            var currenti = i + 1;
+    async loadHistoryDurationDiagram() {
+      const activitiesUrl =
+        "/history/activity-instance?&&sortBy=startTime&&sortOrder=asc&&processInstanceId=" +
+        this.processInstanceId;
+      const detailsUrl =
+        "/history/detail?historicVariableUpdates=true&sortBy=time&sortOrder=desc&processInstanceId=" +
+        this.processInstanceId;
 
-            this.network.nodes.push({
-              id: currenti + this.activities.length,
-              font: { multi: "md", size: 11, align: "left" },
-              shape: "box",
-              color: "#007bff80",
-              heightConstraint: { minimum: 30 },
-              shapeProperties: { borderDashes: [5, 5] },
-              margin: 5,
-              size: 40,
-              label: this.prepareHistoryDetailsLabel(this.historyDetails[i])
-            });
+      try {
+        const [activitiesResponse, detailsResponse] = await Promise.all([
+          this.$api().get(activitiesUrl),
+          this.$api().get(detailsUrl)
+        ]);
 
-            var result = "";
-            this.network.nodes.forEach(element => {
-              if (element.label == this.historyDetails[i].activityInstanceId) {
-                result = element.id;
-              }
-            });
+        this.activities = activitiesResponse.data || [];
+        this.historyDetails = (detailsResponse.data || []).slice(-100);
+        this.updateNetworkData();
+      } catch (error) {
+        console.error("Failed to load history duration diagram", error);
+        this.activities = [];
+        this.historyDetails = [];
+        this.network = {
+          ...this.network,
+          nodes: [],
+          edges: []
+        };
+      }
+    },
+    updateNetworkData() {
+      const nodes = [];
+      const edges = [];
+      const activityNodeByInstanceId = new Map();
 
-            this.network.edges.push({
-              id: currenti + this.activities.length,
-              from: result,
-              length: 300,
-              dashes: true,
-              color: { color: "grey", opacity: 0.3 },
-              arrows: "to",
-              to: currenti + this.activities.length
-            });
-          }
+      for (var i = 0; i < this.activities.length; i++) {
+        var currenti = i + 1;
+        var nexti = i + 2;
+        var activity = this.activities[i];
+
+        nodes.push({
+          id: currenti,
+          shape: this.returnShape(activity.activityType),
+          color: this.returnColor(activity.activityType),
+          margin: 5,
+          label: this.returnLabel(activity)
         });
+
+        if (activity.id) {
+          activityNodeByInstanceId.set(activity.id, currenti);
+        }
+
+        if (nexti <= this.activities.length) {
+          edges.push({
+            id: currenti,
+            from: currenti,
+            label: this.convertDateToHumanStyle(activity.endTime),
+            length: 135,
+            to: nexti,
+            arrows: "to"
+          });
+        }
+      }
+
+      for (var detailIndex = 0; detailIndex < this.historyDetails.length; detailIndex++) {
+        var currentDetail = detailIndex + 1;
+        var detailNodeId = currentDetail + this.activities.length;
+        var detail = this.historyDetails[detailIndex];
+        var activityNodeId = activityNodeByInstanceId.get(detail.activityInstanceId);
+
+        nodes.push({
+          id: detailNodeId,
+          font: { multi: "md", size: 11, align: "left" },
+          shape: "box",
+          color: "#007bff80",
+          heightConstraint: { minimum: 30 },
+          shapeProperties: { borderDashes: [5, 5] },
+          margin: 5,
+          size: 40,
+          label: this.prepareHistoryDetailsLabel(detail)
+        });
+
+        if (activityNodeId) {
+          edges.push({
+            id: detailNodeId,
+            from: activityNodeId,
+            length: 300,
+            dashes: true,
+            color: { color: "grey", opacity: 0.3 },
+            arrows: "to",
+            to: detailNodeId
+          });
+        }
+      }
+
+      this.network = {
+        ...this.network,
+        nodes,
+        edges
+      };
+      this.$nextTick(() => this.fitNetwork());
+    },
+    getHistoryDetails() {
+      return this.loadHistoryDurationDiagram();
     },
 
     prepareHistoryDetailsLabel(item) {
       var time = "*" + this.convertDateToHumanStyle(item.time) + "*";
-      var variableName = "*" + item.variableName + "*";
+      var variableName = "*" + (item.variableName || item.fieldId || "n/a") + "*";
+      var rawValue = item.value ?? item.textValue ?? item.longValue ?? item.doubleValue ?? "";
+      var value = "*" + rawValue + "*";
 
-      if (item.value instanceof Object == false) {
-        var value = "*" + item.value + "*";
-      }
-      if (item.value instanceof Object == true) {
-         value =
+      if (rawValue instanceof Object == true) {
+        value =
           "`\n" +
-          JSON.stringify(item.value)
+          JSON.stringify(rawValue)
             .replace(/,/g, ",\n\n")
             .replace(/}/g, "}\n") +
           "`";
       }
-      var revision = "*" + item.revision + "*";
+      var revision = Number(item.revision || 0);
 
       var label =
         "Update time: " +
@@ -221,52 +308,23 @@ export default {
       return label;
     },
     addNodesFromArray() {
-      {
-        this.$api()
-          .get(
-            "/history/activity-instance?&&sortBy=startTime&&sortOrder=asc&&processInstanceId=" +
-            this.processInstanceId
-          )
-          .then(response => {
-            this.activities = response.data;
-            for (var i = 0; i < this.activities.length; i++) {
-              var currenti = i + 1;
-              var nexti = i + 2;
-              this.network.nodes.push({
-                id: currenti,
-                shape: this.returnShape(this.activities[i].activityType),
-                color: this.returnColor(this.activities[i].activityType),
-                margin: 5,
-                label: this.returnLabel(this.activities[i])
-              });
-              if (nexti <= this.activities.length) {
-                this.network.edges.push({
-                  id: currenti,
-                  from: currenti,
-                  label: this.convertDateToHumanStyle(
-                    this.activities[i].endTime
-                  ),
-                  length: 135,
-                  to: nexti,
-                  arrows: "to"
-                });
-              }
-            }
-          });
-      }
+      return this.loadHistoryDurationDiagram();
+    },
+    fitNetwork() {
+      this.$refs.network?.instance?.fit?.({ animation: false });
     }
   }
 };
 </script>
 
 <style>
-@import "https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.min.css";
-
 .events {
   text-align: left;
   height: 70px;
 }
 .network {
-  height: 1100px;
+  height: 72vh;
+  min-height: 520px;
+  max-height: 760px;
 }
 </style>

@@ -135,12 +135,12 @@ export default {
         .then(response => {
           this.definitionMetadata = response.data;
           this.getVersionsByKey();
-          this.$set(this.definitionMetadata, "deployTime", null);
-          this.$set(this.definitionMetadata, "totalCount", 0);
-          this.$set(this.definitionMetadata, "currentCount", 0);
-          this.$set(this.definitionMetadata, "totalHistoryCount", 0);
-          this.$set(this.definitionMetadata, "currentHistoryCount", 0);
-          this.$set(this.definitionMetadata, "incidentsCount", null);
+          this.definitionMetadata.deployTime = null;
+          this.definitionMetadata.totalCount = 0;
+          this.definitionMetadata.currentCount = 0;
+          this.definitionMetadata.totalHistoryCount = 0;
+          this.definitionMetadata.currentHistoryCount = 0;
+          this.definitionMetadata.incidentsCount = null;
 
           if (localStorage.getItem("metadataCountersEnabled") === "false") {
             console.log("metadataCountersEnabled in localStorage is 'false', don't fetch metadata counts");

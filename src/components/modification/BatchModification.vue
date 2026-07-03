@@ -4,7 +4,7 @@
     <b-card title="1. Select process and activities">
       <div class="form-group">
         <label>Process Definition Key</label>
-        <vue-bootstrap-typeahead
+        <TypeaheadInput
             style="width:100%"
             @hit="selectedDefinition =$event"
             :serializer="serialazier"
@@ -98,8 +98,8 @@
     <b-card title="3. Generate request">
       <div class="form-group">
         <b-btn @click="generateRequest">Generate</b-btn>
-        <vue-json-editor v-if="request != null" v-model="request"
-                         :show-btns="true"></vue-json-editor>
+        <JsonEditor v-if="request != null" v-model="request"
+                         :show-btns="true"></JsonEditor>
       </div>
     </b-card>
     <b-card title="4. Run modification">
@@ -111,8 +111,8 @@
 </template>
 
 <script>
-import VueBootstrapTypeahead from "vue-bootstrap-typeahead";
-import vueJsonEditor from 'vue-json-editor'
+import TypeaheadInput from "@/ui/TypeaheadInput.vue";
+import JsonEditor from '@/ui/JsonEditor.vue'
 
 const START_ACTIVITY_OPTION = {
   BEFORE: 'startBeforeActivity',
@@ -122,7 +122,7 @@ const START_ACTIVITY_OPTION = {
 export default {
   name: "batch-modification",
   components: {
-    VueBootstrapTypeahead, vueJsonEditor
+    TypeaheadInput, JsonEditor
   },
   data() {
     return {

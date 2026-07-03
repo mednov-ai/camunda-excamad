@@ -82,12 +82,12 @@
           </b-col>
           <b-col cols="5">
             <form v-if="previewDone">
-              <vue-form-generator
+              <generated-form
                 :key="formGeneratorKey"
                 :schema="schema"
                 :model="model"
                 :options="formOptions"
-              ></vue-form-generator>
+              ></generated-form>
             </form>
           </b-col>
         </b-row>
@@ -96,10 +96,8 @@
   </div>
 </template>
 <script>
-import { validators } from "vue-form-generator";
-import BpmnModdle from "bpmn-moddle";
-import camundaModdle from "camunda-bpmn-moddle/resources/camunda";
-import camundaExtensionModule from "camunda-bpmn-moddle/lib";
+import { validators } from "@/forms/generatedForm";
+import { createCamundaBpmnModdle } from "@/bpmn/camundaModdle";
 export default {
   name: "FormEditor",
   props: ["fields"],
@@ -172,7 +170,7 @@ export default {
         currentField.type = defaultProps.typeForVariable;
 
         if (!currentField.properties) {
-          var moddle = new BpmnModdle({ camunda: camundaModdle });
+          var moddle = createCamundaBpmnModdle();
 
           var properties = moddle.create("camunda:Properties");
 
@@ -186,7 +184,7 @@ export default {
               y => y.id === "readonly"
             ).value = newValue.readonly.toString();
           } else {
-            moddle = new BpmnModdle({ camunda: camundaModdle });
+            moddle = createCamundaBpmnModdle();
 
             var readonlyproperty = moddle.create("camunda:Property");
             readonlyproperty["id"] = "readonly";
@@ -199,7 +197,7 @@ export default {
               c => c.id === "required"
             ).value = newValue.required.toString();
           } else {
-            moddle = new BpmnModdle({ camunda: camundaModdle });
+            moddle = createCamundaBpmnModdle();
 
             var requiredproperty = moddle.create("camunda:Property");
 
@@ -215,7 +213,7 @@ export default {
                   a => a.id === key
                 ).value = element[key].toString();
               } else {
-                var moddle = new BpmnModdle({ camunda: camundaModdle });
+                var moddle = createCamundaBpmnModdle();
 
                 var obj = moddle.create("camunda:Property");
 
@@ -246,7 +244,7 @@ export default {
       if (element.type == null) {
         element.type = "string";
 
-        var moddle = new BpmnModdle({ camunda: camundaModdle });
+        var moddle = createCamundaBpmnModdle();
         var newField = moddle.create("camunda:Properties");
 
         element["properties"] = newField;
@@ -293,7 +291,7 @@ export default {
       this.fields.forEach(element => {
         var obj = this.whatToAddToModel(element);
     
-        this.$set(this.model, element.id, obj);
+        this.model[element.id] = obj;
 
         var field = {};
         field["model"] = element.id;

@@ -61,13 +61,7 @@
 <script>
 import * as api from "@/api/api";
 
-import BpmnModdle from "bpmn-moddle";
-import camundaModdle from "camunda-bpmn-moddle/resources/camunda";
-import camundaExtensionModule from "camunda-bpmn-moddle/lib";
-
-import camundaModdleDescriptor from "camunda-bpmn-moddle/resources/camunda";
-import BpmnViewer from "bpmn-js/lib/NavigatedViewer";
-import BpmnModeler from "bpmn-js/lib/Modeler";
+import { parseCamundaBpmnXml } from "@/bpmn/camundaModdle";
 export default {
   name: "DeployHelp",
   props: ["diagramId"],
@@ -117,24 +111,20 @@ export default {
           });
       });
     },
-    readModel() {
-      var moddle = new BpmnModdle({ camunda: camundaModdle });
+    async readModel() {
       var vm = this;
-      this.moddle = moddle.fromXML(this.diagramInXml, function(
-        err,
-        definitions
-      ) {
-        vm.elementsOfDiagram = definitions;
-        vm.processKey = vm.elementsOfDiagram.rootElements[0].id;
+      const definitions = await parseCamundaBpmnXml(this.diagramInXml);
+      this.moddle = definitions;
+      vm.elementsOfDiagram = definitions;
+      vm.processKey = vm.elementsOfDiagram.rootElements[0].id;
 
-        vm.elementsOfDiagram.rootElements[0].flowElements.forEach(element => {
-          if (
-            element.$type == "bpmn:ServiceTask" &&
-            element.type == "external"
-          ) {
-            vm.arrayOfTopic.push(element.topic);
-          }
-        });
+      vm.elementsOfDiagram.rootElements[0].flowElements.forEach(element => {
+        if (
+          element.$type == "bpmn:ServiceTask" &&
+          element.type == "external"
+        ) {
+          vm.arrayOfTopic.push(element.topic);
+        }
       });
     }
   }

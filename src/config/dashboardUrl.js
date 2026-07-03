@@ -1,4 +1,6 @@
-//use to iframe some url to REPORT in navBar by camundadURL
+import { normalizeConnectionUrl } from "../connections/connectionStorage.js";
+
+// use to iframe some url to REPORT in navBar by camundadURL
 
 const Dashboards = [
   {
@@ -9,5 +11,10 @@ const Dashboards = [
 ];
 
 export function FindDashboardUrl(camundaUrl) {
-  return Dashboards.find(x => x.camundaUrl === camundaUrl).dashboardUrl;
+  const normalizedCamundaUrl = normalizeConnectionUrl(camundaUrl);
+  const dashboard = Dashboards.find(
+    item => normalizeConnectionUrl(item.camundaUrl) === normalizedCamundaUrl
+  );
+
+  return dashboard?.dashboardUrl || null;
 }

@@ -11,9 +11,9 @@
       :title="'Delete variable: \'' + variableName + '\''"
     >
       <label for="variableName">Variable name</label>
-      <b-form-input id="variableName" v-model="variableName" disabled></b-form-input>
+      <b-form-input id="variableName" :model-value="variableName" disabled></b-form-input>
       <label for="variableValue">Variable value</label>
-      <b-form-input id="variableValue" v-model="variableValue" disabled></b-form-input>
+      <b-form-input id="variableValue" :model-value="variableValue" disabled></b-form-input>
     </b-modal>
   </div>
 </template>

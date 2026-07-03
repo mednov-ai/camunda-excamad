@@ -1,34 +1,148 @@
 <template>
-  <div id="Report">
-    <h2 v-if="!url">Dashboard not ready for this sistem</h2>
-    <vue-friendly-iframe v-if="url" :src="url"></vue-friendly-iframe>
+  <div id="Report" class="report-page">
+    <b-card class="report-panel" bg-variant="light" text-variant="dark">
+      <div class="report-header">
+        <div>
+          <h3 class="report-title">Report dashboard</h3>
+          <div class="report-connection">{{ connectionLabel }}</div>
+        </div>
+        <b-badge pill :variant="dashboardUrl ? 'success' : 'secondary'">
+          {{ dashboardUrl ? 'Configured' : 'Not configured' }}
+        </b-badge>
+      </div>
+
+      <b-alert v-if="!dashboardUrl" show variant="info" class="mt-3 mb-0">
+        No dashboard is configured for {{ currentURL || 'the active connection' }}.
+      </b-alert>
+
+      <template v-else>
+        <div class="report-actions">
+          <b-button
+            :href="dashboardUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            size="sm"
+            variant="primary"
+          >
+            <font-awesome-icon icon="external-link-alt" />
+            <span>Open</span>
+          </b-button>
+
+          <b-button size="sm" variant="outline-secondary" @click="toggleEmbed">
+            <font-awesome-icon :icon="embedDashboard ? 'eye-slash' : 'eye'" />
+            <span>{{ embedDashboard ? 'Hide embed' : 'Embed' }}</span>
+          </b-button>
+        </div>
+
+        <iframe
+          v-if="embedDashboard"
+          class="report-frame"
+          :src="dashboardUrl"
+          title="Report dashboard"
+          sandbox="allow-forms allow-popups allow-same-origin allow-scripts"
+        ></iframe>
+      </template>
+    </b-card>
   </div>
 </template>
 
 <script>
-import * as Dasboard from "@/config/dashboardUrl";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+  faExternalLinkAlt,
+  faEye,
+  faEyeSlash
+} from "@fortawesome/free-solid-svg-icons";
+import { FindDashboardUrl } from "@/config/dashboardUrl";
+import { normalizeConnectionUrl } from "@/connections/connectionStorage";
+
+library.add(faExternalLinkAlt, faEye, faEyeSlash);
+
 export default {
   name: "Report",
   data() {
     return {
-      url: ""
+      dashboardUrl: null,
+      embedDashboard: false
     };
   },
   computed: {
     currentURL() {
-      return this.$store.state.baseurl;
+      return normalizeConnectionUrl(this.$store.state.baseurl);
+    },
+    activeProfile() {
+      return this.$store.state.connectionProfiles.find(
+        profile => profile.id === this.$store.state.activeConnectionId
+      );
+    },
+    connectionLabel() {
+      return this.activeProfile?.name || this.currentURL || "No active connection";
+    }
+  },
+  watch: {
+    currentURL() {
+      this.syncDashboardUrl();
     }
   },
   mounted() {
-    this.url = Dasboard.FindDashboardUrl(this.currentURL);
+    this.syncDashboardUrl();
+  },
+  methods: {
+    syncDashboardUrl() {
+      this.dashboardUrl = FindDashboardUrl(this.currentURL);
+      this.embedDashboard = false;
+    },
+    toggleEmbed() {
+      this.embedDashboard = !this.embedDashboard;
+    }
   }
 };
 </script>
 
 <style>
-.vue-friendly-iframe iframe {
-  width: 1400px;
-  height: 2000px;
-  border: 0px;
+.report-page {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.report-panel {
+  border-radius: 8px;
+}
+
+.report-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.report-title {
+  margin-bottom: 4px;
+}
+
+.report-connection {
+  color: #6c757d;
+  overflow-wrap: anywhere;
+}
+
+.report-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.report-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.report-frame {
+  width: 100%;
+  height: 72vh;
+  min-height: 560px;
+  margin-top: 16px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
 }
 </style>

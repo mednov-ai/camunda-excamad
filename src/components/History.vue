@@ -47,7 +47,7 @@
       :items="findedProcessInstances"
       striped
     >
-      <template slot="table-caption">Total {{totalResult}}</template>
+      <template #table-caption>Total {{totalResult}}</template>
       <template v-slot:cell(id)="data">
         <router-link :to="{name:'processdetail', params:{ processInstanceId: data.item.id}, query: {baseurl}}">
           <b>{{data.item.id.substring(0,5)}}...</b>
@@ -55,10 +55,12 @@
       </template>
       <template v-slot:cell(superProcessInstanceId)="data">
         <router-link
+          v-if="data.item.superProcessInstanceId"
           :to="{name:'processdetail', params:{ processInstanceId: data.item.superProcessInstanceId}, query: {baseurl}}"
         >
-          <b>{{ data.item.superProcessInstanceId ? data.item.superProcessInstanceId.substring(0,5)+'...' : ''}}</b>
+          <b>{{ data.item.superProcessInstanceId.substring(0,5)+'...' }}</b>
         </router-link>
+        <span v-else></span>
       </template>
       <template v-slot:cell(processDefinitionKey)="data">
         <router-link
@@ -177,7 +179,7 @@ export default {
           this.findedProcessInstances = response.data;
           this.ready = true;
           this.findedProcessInstances.forEach(element => {
-            this.$set(element, "_showDetails", false);
+            element._showDetails = false;
           });
           this.searchTryed = true;
         });
@@ -242,5 +244,3 @@ export default {
   border-radius: 45px;
 }
 </style>
-
-

@@ -29,15 +29,14 @@
         variant="outline-warning"
         @click="doneAllVisibleTask"
       >Done first 25</b-btn>
+      <template v-for="item in tasks.slice(0,25)" :key="item.id">
       <b-list-group-item
+        v-if="item.assignee == null || item.assignee==profile.userName"
         :active="checkIsActive(item)"
         @click="changeTaskId(item)"
         button
-        :key="item.id"
-        v-for="item in tasks.slice(0,25)"
-        v-if="item.assignee == null || item.assignee==profile.userName"
         class="flex-column align-items-start"
-      > 
+      >
         <div v-if="item.assignee == null || item.assignee==profile.userName" id="smallTask">
           <div class="d-flex justify-content-between">
             <h6 class="mb-1">{{item.name}}</h6>
@@ -62,6 +61,7 @@
           </div>
         </div>
       </b-list-group-item>
+      </template>
     </b-list-group>
   </div>
 </template>
@@ -134,32 +134,29 @@ export default {
   },
   methods: {
     getCandidateGroupTasks() {
-      var firstRequestCount = 0;
-      var searchObjByCandidate = {
-        active: true,
-        candidateUser: this.camundaProfile.authenticatedUser
+      const requests = [
+        this.$api().post("/task", {
+          active: true,
+          unassigned: true
+        })
+      ];
+
+      if (this.camundaProfile.authenticatedUser) {
+        requests.push(this.$api().post("/task", {
+          active: true,
+          candidateUser: this.camundaProfile.authenticatedUser
+        }));
       }
-      this.$api().post("/task", searchObjByCandidate).then(response => {
-        response.data.forEach(task => {
-          this.tasks.push(task);
+
+      Promise.all(requests).then(responses => {
+        const tasksById = new Map();
+        responses.forEach(response => {
+          response.data.forEach(task => {
+            tasksById.set(task.id, task);
+          });
         });
-        firstRequestCount = response.data.length;
-
-      })
-      var searchObjByUnassigne = {
-        active: true,
-        unassigned: true
-      }
-      this.$api().post("/task", searchObjByUnassigne).then(response => {
-        response.data.forEach(task => {
-
-          if (firstRequestCount == 0 || this.tasks.filter(e => e.id === task.id).length < 0) {
-            this.tasks.push(task);
-          }
-        });
-      })
-
-
+        this.tasks = Array.from(tasksById.values());
+      });
     },
 
     getUnfinishedTasksByQuery() {

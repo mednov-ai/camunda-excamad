@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import { Timeline, Graph2d, Network } from "vue2vis";
-import fullscreen from "vue-fullscreen";
+import { Timeline, Graph2d, Network } from "@/visualization/visNetwork";
+import fullscreen from "@/plugins/fullscreen";
 
 export default {
   data() {

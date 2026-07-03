@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import {Network } from "vue2vis";
+import {Network } from "@/visualization/visNetwork";
 export default {
   data() {
     return {

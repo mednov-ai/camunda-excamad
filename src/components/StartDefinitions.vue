@@ -2,7 +2,7 @@
   <div>
     <h3>Start process definitions</h3>
     <b-table hover :items="processDefinitions" :fields="fields" striped>
-      <template slot="start" slot-scope="row">
+      <template #cell(start)="row">
         <start-definition class="mb-2 text-left" :definitionId="row.item.id"></start-definition>
       </template>
     </b-table>

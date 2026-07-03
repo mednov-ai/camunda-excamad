@@ -9,7 +9,7 @@
     </p>
     <b-card v-if="ready" bg-variant="light" text-variant="dark">
       <form>
-        <vue-form-generator :schema="schema" :model="model" :options="formOptions"></vue-form-generator>
+        <generated-form :schema="schema" :model="model" :options="formOptions"></generated-form>
       </form>
     </b-card>
   </div>
@@ -53,6 +53,9 @@ export default {
     this.fieldsOk = false;
     this.ready = false;
 
+    if (!this.taskId) {
+      return;
+    }
 
     this.getTaskProps().then(() => {
       this.getFormVariables().then(() => {
@@ -117,8 +120,8 @@ export default {
                 var testobj = vm.formProps.find(x => x.id === key);
                 if (testobj) {
                   if (vm.isJson(value[key].value)) {
-                    vm.$set(vm.model, key, JSON.parse(value[key].value));
-                  } else vm.$set(vm.model, key, value[key].value);
+                    vm.model[key] = JSON.parse(value[key].value);
+                  } else vm.model[key] = value[key].value;
 
 
 
@@ -127,7 +130,7 @@ export default {
               }
 
             }
-            vm.$set(vm.schema, "fields", vm.fields);
+            vm.schema.fields = vm.fields;
             resolve();
           }).catch(error => { reject(error) });
       });
@@ -317,7 +320,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   clear: both;
 }
 .pika-single {
-  *zoom: 1;
 }
 
 .pika-single.is-hidden {
@@ -342,7 +344,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 .pika-label {
   display: inline-block;
-  *display: inline;
   position: relative;
   z-index: 9999;
   overflow: hidden;
@@ -383,8 +384,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   background-repeat: no-repeat;
   background-size: 75% 75%;
   opacity: 0.5;
-  *position: absolute;
-  *top: 0;
 }
 
 .pika-prev:hover,
@@ -396,14 +395,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 .is-rtl .pika-next {
   float: left;
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAAUklEQVR42u3VMQoAIBADQf8Pgj+OD9hG2CtONJB2ymQkKe0HbwAP0xucDiQWARITIDEBEnMgMQ8S8+AqBIl6kKgHiXqQqAeJepBo/z38J/U0uAHlaBkBl9I4GwAAAABJRU5ErkJggg==");
-  *left: 0;
 }
 
 .pika-next,
 .is-rtl .pika-prev {
   float: right;
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAeCAYAAAAsEj5rAAAAU0lEQVR42u3VOwoAMAgE0dwfAnNjU26bYkBCFGwfiL9VVWoO+BJ4Gf3gtsEKKoFBNTCoCAYVwaAiGNQGMUHMkjGbgjk2mIONuXo0nC8XnCf1JXgArVIZAQh5TKYAAAAASUVORK5CYII=");
-  *right: 0;
 }
 
 .pika-prev.is-disabled,
@@ -414,7 +411,6 @@ http://nicolasgallagher.com/micro-clearfix-hack/
 
 .pika-select {
   display: inline-block;
-  *display: inline;
 }
 
 .pika-table {
@@ -903,16 +899,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   border: 0;
 }
 /**
- * vue-form-generator v2.0.0
- * https://github.com/icebob/vue-form-generator
+ * generated-form v2.0.0
+ * https://github.com/icebob/generated-form
  * Released under the MIT License.
  */
 
-.vue-form-generator * {
+.generated-form * {
   box-sizing: border-box;
 }
 
-.vue-form-generator .form-control {
+.generated-form .form-control {
   display: block;
   padding: 6px 12px;
   font-size: 14px;
@@ -926,16 +922,16 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.vue-form-generator .form-control:not([class*=" col-"]) {
+.generated-form .form-control:not([class*=" col-"]) {
   width: 100%;
 }
 
-.vue-form-generator span.help {
+.generated-form span.help {
   margin-left: 0.3em;
   position: relative;
 }
 
-.vue-form-generator span.help .icon {
+.generated-form span.help .icon {
   display: inline-block;
   width: 16px;
   height: 14px;
@@ -944,7 +940,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   background-position: 50%;
 }
 
-.vue-form-generator span.help .helpText {
+.generated-form span.help .helpText {
   background-color: #444;
   bottom: 30px;
   color: #fff;
@@ -961,12 +957,12 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   border-radius: 6px;
 }
 
-.vue-form-generator span.help .helpText a {
+.generated-form span.help .helpText a {
   font-weight: 700;
   text-decoration: underline;
 }
 
-.vue-form-generator span.help .helpText:before {
+.generated-form span.help .helpText:before {
   bottom: -20px;
   content: " ";
   display: block;
@@ -976,23 +972,23 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   width: 100%;
 }
 
-.vue-form-generator span.help:hover .helpText {
+.generated-form span.help:hover .helpText {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
 }
 
-.vue-form-generator .field-wrap {
+.generated-form .field-wrap {
   display: flex;
 }
 
-.vue-form-generator .field-wrap .buttons {
+.generated-form .field-wrap .buttons {
   white-space: nowrap;
   margin-left: 4px;
 }
 
-.vue-form-generator .field-wrap button,
-.vue-form-generator .field-wrap input[type="submit"] {
+.generated-form .field-wrap button,
+.generated-form .field-wrap input[type="submit"] {
   display: inline-block;
   padding: 6px 12px;
   margin: 0;
@@ -1011,20 +1007,20 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   border-radius: 4px;
 }
 
-.vue-form-generator .field-wrap button:not(:last-child),
-.vue-form-generator .field-wrap input[type="submit"]:not(:last-child) {
+.generated-form .field-wrap button:not(:last-child),
+.generated-form .field-wrap input[type="submit"]:not(:last-child) {
   margin-right: 4px;
 }
 
-.vue-form-generator .field-wrap button:hover,
-.vue-form-generator .field-wrap input[type="submit"]:hover {
+.generated-form .field-wrap button:hover,
+.generated-form .field-wrap input[type="submit"]:hover {
   color: #333;
   background-color: #e6e6e6;
   border-color: #adadad;
 }
 
-.vue-form-generator .field-wrap button:active,
-.vue-form-generator .field-wrap input[type="submit"]:active {
+.generated-form .field-wrap button:active,
+.generated-form .field-wrap input[type="submit"]:active {
   color: #333;
   background-color: #d4d4d4;
   border-color: #8c8c8c;
@@ -1032,33 +1028,33 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
 
-.vue-form-generator .field-wrap button:disabled,
-.vue-form-generator .field-wrap input[type="submit"]:disabled {
+.generated-form .field-wrap button:disabled,
+.generated-form .field-wrap input[type="submit"]:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.vue-form-generator .hint {
+.generated-form .hint {
   font-style: italic;
   font-size: 0.8em;
 }
 
-.vue-form-generator .form-group {
+.generated-form .form-group {
   display: inline-block;
   vertical-align: top;
   width: 100%;
   margin-bottom: 1rem;
 }
 
-.vue-form-generator .form-group label {
+.generated-form .form-group label {
   font-weight: 400;
 }
 
-.vue-form-generator .form-group.featured > label {
+.generated-form .form-group.featured > label {
   font-weight: 700;
 }
 
-.vue-form-generator .form-group.required > label:after {
+.generated-form .form-group.required > label:after {
   content: "*";
   font-weight: 400;
   color: red;
@@ -1066,24 +1062,24 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   font-size: 1em;
 }
 
-.vue-form-generator .form-group.disabled > label {
+.generated-form .form-group.disabled > label {
   color: #666;
   font-style: italic;
 }
 
-.vue-form-generator .form-group.error input:not([type="checkbox"]),
-.vue-form-generator .form-group.error select,
-.vue-form-generator .form-group.error textarea {
+.generated-form .form-group.error input:not([type="checkbox"]),
+.generated-form .form-group.error select,
+.generated-form .form-group.error textarea {
   border: 1px solid red;
   background-color: rgba(255, 0, 0, 0.15);
 }
 
-.vue-form-generator .form-group.error .errors {
+.generated-form .form-group.error .errors {
   color: red;
   font-size: 0.8em;
 }
 
-.vue-form-generator .form-group.error .errors span {
+.generated-form .form-group.error .errors span {
   display: block;
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAiklEQVR4Xt2TMQoCQQxF3xdhu72MpZU3GU/meBFLOztPYrVWsQmEWSaMsIXgK8P8RyYkMjO2sAN+K9gTIAmDAlzoUzE7p4IFytvDCQWJKSStYB2efcAvqZFM0BcstMx5naSDYFzfLhh/4SmRM+6Agw/xIX0tKEDFufeDNRUc4XqLRz3qabVIf3BMHwl6Ktexn3nmAAAAAElFTkSuQmCC");
   background-repeat: no-repeat;
@@ -1093,39 +1089,39 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   font-weight: 600;
 }
 
-.vue-form-generator .field-checkbox input {
+.generated-form .field-checkbox input {
   margin-left: 12px;
 }
 
-.vue-form-generator .field-checklist .dropList,
-.vue-form-generator .field-checklist .listbox {
+.generated-form .field-checklist .dropList,
+.generated-form .field-checklist .listbox {
   height: auto;
   max-height: 150px;
   overflow: auto;
 }
 
-.vue-form-generator .field-checklist .dropList .list-row label,
-.vue-form-generator .field-checklist .listbox .list-row label {
+.generated-form .field-checklist .dropList .list-row label,
+.generated-form .field-checklist .listbox .list-row label {
   font-weight: 400;
 }
 
-.vue-form-generator .field-checklist .dropList .list-row input,
-.vue-form-generator .field-checklist .listbox .list-row input {
+.generated-form .field-checklist .dropList .list-row input,
+.generated-form .field-checklist .listbox .list-row input {
   margin-right: 0.3em;
 }
 
-.vue-form-generator .field-checklist .combobox {
+.generated-form .field-checklist .combobox {
   height: auto;
   overflow: hidden;
 }
 
-.vue-form-generator .field-checklist .combobox .mainRow {
+.generated-form .field-checklist .combobox .mainRow {
   cursor: pointer;
   position: relative;
   padding-right: 10px;
 }
 
-.vue-form-generator .field-checklist .combobox .mainRow .arrow {
+.generated-form .field-checklist .combobox .mainRow .arrow {
   position: absolute;
   right: -9px;
   top: 3px;
@@ -1137,64 +1133,64 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   background-repeat: no-repeat;
 }
 
-.vue-form-generator .field-checklist .combobox .mainRow.expanded .arrow {
+.generated-form .field-checklist .combobox .mainRow.expanded .arrow {
   transform: rotate(-180deg);
 }
 
-.vue-form-generator .field-checklist .combobox .dropList {
+.generated-form .field-checklist .combobox .dropList {
   transition: height 0.5s;
 }
 
-.vue-form-generator .field-input .wrapper,
-.vue-form-generator .field-input input[type="radio"] {
+.generated-form .field-input .wrapper,
+.generated-form .field-input input[type="radio"] {
   width: 100%;
 }
 
-.vue-form-generator .field-input input[type="color"] {
+.generated-form .field-input input[type="color"] {
   width: 60px;
 }
 
-.vue-form-generator .field-input input[type="range"] {
+.generated-form .field-input input[type="range"] {
   padding: 0;
 }
 
-.vue-form-generator .field-input .helper {
+.generated-form .field-input .helper {
   margin: auto 0.5em;
 }
 
-.vue-form-generator .field-label span {
+.generated-form .field-label span {
   display: block;
   width: 100%;
   margin-left: 12px;
 }
 
-.vue-form-generator .field-radios .radio-list label {
+.generated-form .field-radios .radio-list label {
   display: block;
 }
 
-.vue-form-generator .field-radios .radio-list label input[type="radio"] {
+.generated-form .field-radios .radio-list label input[type="radio"] {
   margin-right: 5px;
 }
 
-.vue-form-generator .field-submit input {
+.generated-form .field-submit input {
   color: #fff !important;
   background-color: #337ab7 !important;
   border-color: #2e6da4 !important;
 }
 
-.vue-form-generator .field-input .wrapper {
+.generated-form .field-input .wrapper {
   width: 100%;
 }
 
-.vue-form-generator .field-input .helper {
+.generated-form .field-input .helper {
   margin: auto 0.5em;
 }
 
-.vue-form-generator .field-image .wrapper {
+.generated-form .field-image .wrapper {
   width: 100%;
 }
 
-.vue-form-generator .field-image .preview {
+.generated-form .field-image .preview {
   position: relative;
   margin-top: 5px;
   height: 100px;
@@ -1206,7 +1202,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
-.vue-form-generator .field-image .preview .remove {
+.generated-form .field-image .preview .remove {
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAXUlEQVR42u2SwQoAIAhD88vVLy8KBlaS0i1oJwP3piGVg0Skmpq8HjqZrWl9uwCbGAmwKYGZs/6iqgMyAdJuM8W2QmYKpLt/0AG9ASCv/oAnANd3AEjmAlFT1BypAV+PnRH5YehvAAAAAElFTkSuQmCC");
   width: 16px;
   height: 16px;
@@ -1217,33 +1213,33 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   opacity: 0.7;
 }
 
-.vue-form-generator .field-image .preview .remove:hover {
+.generated-form .field-image .preview .remove:hover {
   opacity: 1;
   cursor: pointer;
 }
 
-.vue-form-generator .field-noUiSlider .field-wrap {
+.generated-form .field-noUiSlider .field-wrap {
   display: block;
 }
 
-.vue-form-generator .field-noUiSlider .contain-pips {
+.generated-form .field-noUiSlider .contain-pips {
   margin-bottom: 30px;
 }
 
-.vue-form-generator .field-noUiSlider .contain-tooltip {
+.generated-form .field-noUiSlider .contain-tooltip {
   margin-top: 30px;
 }
 
-.vue-form-generator .field-noUiSlider .noUi-vertical {
+.generated-form .field-noUiSlider .noUi-vertical {
   height: 200px;
   margin: 10px 0;
 }
 
-.vue-form-generator .field-rangeSlider .irs {
+.generated-form .field-rangeSlider .irs {
   width: 100%;
 }
 
-.vue-form-generator
+.generated-form
   .field-selectEx
   .bootstrap-select
   .dropdown-menu
@@ -1252,13 +1248,13 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   font-weight: 700;
 }
 
-.vue-form-generator .field-staticMap img {
+.generated-form .field-staticMap img {
   display: block;
   width: auto;
   max-width: 100%;
 }
 
-.vue-form-generator .field-switch .field-wrap label {
+.generated-form .field-switch .field-wrap label {
   position: relative;
   display: block;
   width: 120px;
@@ -1270,14 +1266,14 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   cursor: pointer;
 }
 
-.vue-form-generator .field-switch input {
+.generated-form .field-switch input {
   position: absolute;
   top: 0;
   left: 0;
   opacity: 0;
 }
 
-.vue-form-generator .field-switch .label {
+.generated-form .field-switch .label {
   position: relative;
   display: block;
   height: inherit;
@@ -1289,8 +1285,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
     inset 0 0 2px rgba(0, 0, 0, 0.15);
 }
 
-.vue-form-generator .field-switch .label:after,
-.vue-form-generator .field-switch .label:before {
+.generated-form .field-switch .label:after,
+.generated-form .field-switch .label:before {
   position: absolute;
   top: 50%;
   margin-top: -0.5em;
@@ -1301,14 +1297,14 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   transition: inherit;
 }
 
-.vue-form-generator .field-switch .label:before {
+.generated-form .field-switch .label:before {
   content: attr(data-off);
   right: 11px;
   color: #aaa;
   text-shadow: 0 1px hsla(0, 0%, 100%, 0.5);
 }
 
-.vue-form-generator .field-switch .label:after {
+.generated-form .field-switch .label:after {
   content: attr(data-on);
   left: 11px;
   color: #fff;
@@ -1316,21 +1312,21 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   opacity: 0;
 }
 
-.vue-form-generator .field-switch input:checked ~ .label {
+.generated-form .field-switch input:checked ~ .label {
   background: #e1b42b;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15),
     inset 0 0 3px rgba(0, 0, 0, 0.2);
 }
 
-.vue-form-generator .field-switch input:checked ~ .label:before {
+.generated-form .field-switch input:checked ~ .label:before {
   opacity: 0;
 }
 
-.vue-form-generator .field-switch input:checked ~ .label:after {
+.generated-form .field-switch input:checked ~ .label:after {
   opacity: 1;
 }
 
-.vue-form-generator .field-switch .handle {
+.generated-form .field-switch .handle {
   position: absolute;
   top: 1px;
   left: 1px;
@@ -1342,7 +1338,7 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
 }
 
-.vue-form-generator .field-switch .handle:before {
+.generated-form .field-switch .handle:before {
   content: "";
   position: absolute;
   top: 50%;
@@ -1356,8 +1352,8 @@ http://nicolasgallagher.com/micro-clearfix-hack/
   box-shadow: inset 0 1px rgba(0, 0, 0, 0.02);
 }
 
-.vue-form-generator .field-switch .handle,
-.vue-form-generator .field-switch .label {
+.generated-form .field-switch .handle,
+.generated-form .field-switch .label {
   transition: all 0.3s ease;
 }
 </style>
