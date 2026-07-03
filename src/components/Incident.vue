@@ -1,5 +1,5 @@
 <template>
-  <div id="incident">
+  <div id="incident" class="incidents-page oc-page">
     <atom-spinner
       v-if="!(ready == true)"
       class="spinner"
@@ -8,113 +8,108 @@
       :color="'#007bff'"
     />
 
-    <h2>Incidents count: {{incidentsToShow.length}}</h2>
-    <b-form-checkbox
-      id="checkbox1"
-      name="checkbox1"
-      v-model="hideParentIncidents"
-    >Hide parent incidents</b-form-checkbox>
-    <div v-if="incidents.length != 0">
-      <b-form class="mb-2" inline>
+    <header class="oc-page-header">
+      <div>
+        <h1 class="oc-page-title">Incidents</h1>
+        <p class="oc-page-subtitle">Failed activities, retries, and affected process instances.</p>
+      </div>
+      <span class="oc-status-badge" :class="incidentsToShow.length ? 'is-warning' : 'is-success'">
+        {{ incidentsToShow.length }} visible
+      </span>
+    </header>
+
+    <div class="oc-toolbar incidents-toolbar">
+      <b-form-checkbox
+        id="checkbox1"
+        name="checkbox1"
+        v-model="hideParentIncidents"
+      >Hide parent incidents</b-form-checkbox>
+
+      <b-form v-if="incidents.length != 0" class="incidents-actions" inline>
         <b-form-input
           v-on:change="activityChanged"
           v-model="activityIdForJobSearch"
           list="my-list-id"
+          placeholder="Failed activity"
         ></b-form-input>
 
         <datalist id="my-list-id">
           <option v-bind:key="item" v-for="item in filterFailedActivity">{{ item }}</option>
         </datalist>
 
-        <b-form-input class="ml-1" v-model="countOfJobs" type="number"></b-form-input>
-        <b-btn class="ml-1" variant="warning" @click="getFistNJobs">Rerun {{countOfJobs}} jobs</b-btn>
-        <b-btn
-          class="ml-1"
-          variant="danger"
-          @click="healAndRetry"
-        >Rerun all activities</b-btn>
+        <b-form-input v-model="countOfJobs" type="number" min="0"></b-form-input>
+        <b-btn variant="warning" @click="getFistNJobs">Rerun {{countOfJobs}} jobs</b-btn>
+        <b-btn variant="danger" @click="healAndRetry">Rerun all activities</b-btn>
       </b-form>
-      <div class="d-flex justify-content-end">
+
+      <div v-if="incidents.length != 0" class="incidents-table-actions">
         <b-btn size="sm" variant="link" @click="resetFilters">Clear filters</b-btn>
         <b-btn size="sm" variant="link" @click="resetSorting">Clear sorting</b-btn>
       </div>
-      <small>
-        <div class="row">
-          <div class="col-md-12">
-            <div class="panel-body">
-              <table class="table table-striped table-hover table-sm">
-                <thead>
-                  <tr>
-                    <th v-for="header in headers" :key="header.text" class="sortable-header table-header">
-                      <div>
-                        <div @click="headerClicked(header.value)">
-                          {{ header.text }}
-                          <span>{{ getSortArrow(header.value) }}</span>
-                        </div>
-                        <div v-if="header.hasFilter">
-                          <input type="text" ref="filter" @keyup="headerFilterKeyUp(header.value, $event.target.value)">
-                        </div>
-                      </div>
-                    </th>
-                    <th class="table-header">Fix</th>
-                    <th class="table-header">Delete instance</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr :key="item.id" v-for="item in incidentsToShow">
-                    <td style="word-break:break-all;">{{item.activityId}}</td>
-                    <td
-                      style="word-break:break-all;"
-                    >{{ item.incidentMessage ? item.incidentMessage.substring(0,100)+'...' : ''}}</td>
-                    <td>{{item.rootCauseIncidentId}}</td>
-                    <td>{{item.causeIncidentId}}</td>
-                    <td
-                      style="word-break:break-all;"
-                    >{{convertDateToHumanStyle(item.incidentTimestamp)}}</td>
-                    <td style="word-break:break-all;">{{item.processDefinitionId}}</td>
-                    <td style="word-break:break-all;">
-                      <router-link
-                        :to="{name:'processdetail', params:{ processInstanceId: item.processInstanceId}}"
-                      >
-                        <p class="card-text">
-                          <b>{{item.processInstanceId}}</b>
-                        </p>
-                      </router-link>
-                    </td>
-                    <td style="word-break:break-all;">
-                      <b-btn
-                        size="sm"
-                        class="ml-2"
-                        variant="info"
-                        @click="updateSingleJobRetry(item)"
-                      >
-                        <font-awesome-icon icon="redo" />
-                      </b-btn>
-                    </td>
-                    <td style="word-break:break-all;">
-                      <b-btn
-                        size="sm"
-                        class="ml-2"
-                        variant="warning"
-                        @click="DeleteProccessInstance(item)"
-                      >
-                        <font-awesome-icon icon="trash" />
-                      </b-btn>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </small>
     </div>
+
+    <div v-if="incidents.length != 0" class="oc-table-wrap">
+      <table class="table table-striped table-hover table-sm incidents-table">
+        <thead>
+          <tr>
+            <th v-for="header in headers" :key="header.text" class="sortable-header table-header">
+              <div>
+                <button type="button" class="incidents-sort-button" @click="headerClicked(header.value)">
+                  {{ header.text }}
+                  <span>{{ getSortArrow(header.value) }}</span>
+                </button>
+                <div v-if="header.hasFilter">
+                  <input class="form-control form-control-sm" type="text" ref="filter" @keyup="headerFilterKeyUp(header.value, $event.target.value)">
+                </div>
+              </div>
+            </th>
+            <th class="table-header">Fix</th>
+            <th class="table-header">Delete instance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr :key="item.id" v-for="item in incidentsToShow">
+            <td>{{item.activityId}}</td>
+            <td>{{ item.incidentMessage ? item.incidentMessage.substring(0,100)+'...' : ''}}</td>
+            <td>{{item.rootCauseIncidentId}}</td>
+            <td>{{item.causeIncidentId}}</td>
+            <td>{{convertDateToHumanStyle(item.incidentTimestamp)}}</td>
+            <td>{{item.processDefinitionId}}</td>
+            <td>
+              <router-link
+                :to="{name:'processdetail', params:{ processInstanceId: item.processInstanceId}}"
+              >
+                <b>{{item.processInstanceId}}</b>
+              </router-link>
+            </td>
+            <td>
+              <b-btn
+                size="sm"
+                variant="info"
+                @click="updateSingleJobRetry(item)"
+              >
+                <font-awesome-icon icon="redo" />
+              </b-btn>
+            </td>
+            <td>
+              <b-btn
+                size="sm"
+                variant="warning"
+                @click="DeleteProccessInstance(item)"
+              >
+                <font-awesome-icon icon="trash" />
+              </b-btn>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <div
       v-if="incidents.length == 0 && ready==true"
-      class="alert alert-primary"
+      class="oc-empty-state"
       role="alert"
-    >No incidents!</div>
-    <hr />
+    >No incidents found for the active connection.</div>
   </div>
 </template>
 
@@ -547,10 +542,33 @@ export default {
 </script>
 
 <style>
-.router-link-exact-active {
-  font-style: bold;
-  font-size: 24px;
+.incidents-toolbar {
+  justify-content: space-between;
 }
+
+.incidents-actions,
+.incidents-table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.incidents-table td {
+  max-width: 18rem;
+  overflow-wrap: anywhere;
+}
+
+.incidents-sort-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 750;
+  text-align: left;
+}
+
 .sortable-header {
   cursor: pointer;
 }

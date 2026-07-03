@@ -9,7 +9,7 @@
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
     "lint": "eslint --ext .js,.vue \"src/**/*.{js,vue}\"",
-    "test:compat": "node --test src/ui/*.test.js src/vue3/*.test.js",
+    "test:compat": "node --test src/ui/*.test.js src/vue3/*.test.js src/components/help/*.test.js",
     "test:connections": "node --test src/connections/*.test.js",
     "test:decisions": "node --test src/components/decisions/*.test.js",
     "test:diagrams": "node --test src/bpmn/*.test.js src/components/detail-process-instance/*.test.js",

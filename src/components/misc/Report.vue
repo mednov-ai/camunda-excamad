@@ -1,14 +1,21 @@
 <template>
-  <div id="Report" class="report-page">
-    <b-card class="report-panel" bg-variant="light" text-variant="dark">
-      <div class="report-header">
+  <div id="Report" class="report-page oc-page">
+    <header class="oc-page-header">
+      <div>
+        <h1 class="oc-page-title">Report dashboard</h1>
+        <p class="oc-page-subtitle">{{ connectionLabel }}</p>
+      </div>
+      <span class="oc-status-badge" :class="dashboardUrl ? 'is-success' : ''">
+        {{ dashboardUrl ? 'Configured' : 'Not configured' }}
+      </span>
+    </header>
+
+    <b-card class="report-panel oc-panel" bg-variant="light" text-variant="dark">
+      <div class="oc-panel-header">
         <div>
-          <h3 class="report-title">Report dashboard</h3>
-          <div class="report-connection">{{ connectionLabel }}</div>
+          <h2 class="oc-panel-title">Dashboard source</h2>
+          <p class="oc-panel-subtitle">Open or embed the report configured for this connection.</p>
         </div>
-        <b-badge pill :variant="dashboardUrl ? 'success' : 'secondary'">
-          {{ dashboardUrl ? 'Configured' : 'Not configured' }}
-        </b-badge>
       </div>
 
       <b-alert v-if="!dashboardUrl" show variant="info" class="mt-3 mb-0">
@@ -100,35 +107,10 @@ export default {
 </script>
 
 <style>
-.report-page {
-  max-width: 1120px;
-  margin: 0 auto;
-}
-
-.report-panel {
-  border-radius: 8px;
-}
-
-.report-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.report-title {
-  margin-bottom: 4px;
-}
-
-.report-connection {
-  color: #6c757d;
-  overflow-wrap: anywhere;
-}
-
 .report-actions {
   display: flex;
   gap: 8px;
-  margin-top: 16px;
+  flex-wrap: wrap;
 }
 
 .report-actions .btn {

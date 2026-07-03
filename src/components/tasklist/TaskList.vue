@@ -1,13 +1,16 @@
 <template>
-  <div id="tasklist">
+  <div id="tasklist" class="task-list-panel">
     <b-list-group>
-      <b-card class="mb-3" bg-variant="light" text-variant="dark">
-        <h5>Find task by variable</h5>
-        <b-form inline>
+      <div class="oc-toolbar task-search-toolbar">
+        <div>
+          <h2 class="oc-panel-title">Find task by variable</h2>
+          <p class="oc-panel-subtitle">Total tasks {{tasks.length}}</p>
+        </div>
+        <b-form class="task-search-form" inline>
           <label class="sr-only" for="inlineFormInputName2">Name</label>
-          <b-input v-model="variableName" class="mb-2 mr-sm-2 mb-sm-0" placeholder="Variable name"/>
+          <b-input v-model="variableName" placeholder="Variable name"/>
           <label class="sr-only" for="inlineFormInputGroupUsername2">Username</label>
-          <b-input-group left="@" class="mt-2 mb-2 mr-sm-2 mb-sm-0">
+          <b-input-group left="@">
             <b-input
               v-model="variableValue"
               id="inlineFormInputGroupUsername2"
@@ -19,10 +22,7 @@
             <font-awesome-icon icon="search"/>Search task
           </b-button>
         </b-form>
-        <small>
-          <i>Total task {{tasks.length}}</i>
-        </small>
-      </b-card>
+      </div>
       <b-btn
         class="mb-2"
         size="sm"
@@ -214,4 +214,19 @@ export default {
 </script>
 
 <style>
+.task-list-panel {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.task-search-toolbar {
+  display: grid;
+  align-items: start;
+}
+
+.task-search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
 </style>

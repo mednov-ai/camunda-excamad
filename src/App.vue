@@ -1,18 +1,21 @@
 <template>
 <div id="app">
-    <navbar v-on:refresh="refreshRoute" v-if="!dashboard"></navbar>
-    <transition name="fade">
-        <div id="containerOverRouter" :class="containerClass">
-            <router-view :key="$route.fullPath + key" class="mt-3" />
-        </div>
-    </transition>
+    <app-shell v-if="!dashboard" @refresh="refreshRoute">
+        <transition name="fade">
+            <router-view :key="$route.fullPath + key" class="oc-route-view" />
+        </transition>
+    </app-shell>
+    <div v-else id="containerOverRouter" :class="containerClass">
+        <transition name="fade">
+            <router-view :key="$route.fullPath + key" class="oc-route-view" />
+        </transition>
+    </div>
     <notifications group="foo" />
-    <the-footer class="footer"></the-footer>
 </div>
 </template>
 
 <script>
-import Navbar from "@/components/NavBar.vue";
+import AppShell from "@/components/layout/AppShell.vue";
 import {
     AUTH_REQUEST,
     AUTH_CAMUNDA_REQUEST
@@ -21,7 +24,7 @@ import {
 export default {
     name: "home",
     components: {
-        Navbar
+        AppShell
     },
     data() {
         return {
@@ -120,7 +123,8 @@ export default {
 
 #containerOverRouter {
     max-width: 1400px;
-    padding-top: 1rem;
+    padding: 1rem;
+    margin: 0 auto;
 }
 
 .content {

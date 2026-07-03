@@ -284,7 +284,8 @@ export default {
 <style>
 .simple-suggest.designed,
 .simple-suggest.designed * {
-  width: 470px;
+  width: 100%;
+  max-width: 100%;
 }
 .simple-suggest.designed .suggestions .suggest-item,
 .simple-suggest.designed .suggestions .misc-item {
@@ -293,6 +294,6 @@ export default {
   font-size: 14px;
 }
 .specialWidth {
-  width: 500px;
+  width: min(500px, calc(100vw - 2rem));
 }
 </style>

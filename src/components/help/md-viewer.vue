@@ -1,5 +1,11 @@
 <template>
-  <div class="markdown-viewer" v-html="renderedMarkdown"></div>
+  <div class="markdown-viewer">
+    <div v-if="loading" class="markdown-viewer__state">Loading help article...</div>
+    <div v-else-if="error" class="oc-empty-state markdown-viewer__error">
+      {{ error }}
+    </div>
+    <div v-else v-html="renderedMarkdown"></div>
+  </div>
 </template>
 
 <script>
@@ -91,6 +97,11 @@ const renderMarkdown = markdown => {
   return html.join('');
 };
 
+const looksLikeHtmlFallback = value => {
+  const text = String(value || '').trim().slice(0, 400).toLowerCase();
+  return text.startsWith('<!doctype html') || text.includes('<div id="app"');
+};
+
 export default {
   name: 'md-viewer',
   props: {
@@ -98,6 +109,8 @@ export default {
   },
   data() {
     return {
+      error: '',
+      loading: true,
       mdText: ''
     };
   },
@@ -106,16 +119,80 @@ export default {
       return renderMarkdown(this.mdText);
     }
   },
+  watch: {
+    src() {
+      this.loadMarkdown();
+    }
+  },
   mounted() {
-    axios.get(this.src).then(response => {
-      this.mdText = response.data;
-    });
+    this.loadMarkdown();
+  },
+  methods: {
+    markdownRequestUrl() {
+      const separator = this.src.includes('?') ? '&' : '?';
+      return `${this.src}${separator}_=${Date.now()}`;
+    },
+    async loadMarkdown() {
+      this.loading = true;
+      this.error = '';
+      this.mdText = '';
+
+      try {
+        const response = await axios.get(this.markdownRequestUrl(), {
+          headers: {
+            Accept: 'text/markdown,text/plain,*/*'
+          }
+        });
+
+        if (looksLikeHtmlFallback(response.data)) {
+          this.error = `Help page not found: ${this.src}`;
+          return;
+        }
+
+        this.mdText = response.data;
+      } catch (error) {
+        this.error = `Help page not found: ${this.src}`;
+      } finally {
+        this.loading = false;
+      }
+    }
   }
 };
 </script>
 
 <style lang="scss">
 .markdown-viewer {
+  padding: 1.25rem;
+  color: var(--oc-text);
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 1.25rem 0 0.75rem;
+    color: var(--oc-text);
+    font-weight: 650;
+    letter-spacing: 0;
+  }
+
+  h1:first-child,
+  h2:first-child,
+  h3:first-child {
+    margin-top: 0;
+  }
+
+  h1 {
+    font-size: 1.45rem;
+  }
+
+  h2 {
+    font-size: 1.15rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+
   img {
     display: block;
     max-width: 100%;
@@ -129,5 +206,21 @@ export default {
   ul {
     margin-bottom: 1rem;
   }
+
+  code {
+    padding: 0.1rem 0.25rem;
+    border: 1px solid var(--oc-border);
+    border-radius: 4px;
+    background: var(--oc-surface-muted);
+    color: var(--oc-text);
+  }
+}
+
+.markdown-viewer__state {
+  color: var(--oc-text-muted);
+}
+
+.markdown-viewer__error {
+  margin: 0;
 }
 </style>

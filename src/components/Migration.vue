@@ -1,43 +1,51 @@
 <template>
-<div class>
+<div class="migration-page oc-page">
     <atom-spinner v-if="!(ready == true)" class="spinner" :animation-duration="1000" :size="60" :color="'#007bff'" />
-    <h3>Process definitions and migration tool</h3>
-    <b-form inline class="mt-2 mb-2">
-        <b-input-group class="mr-2">
+    <header class="oc-page-header">
+        <div>
+            <h1 class="oc-page-title">Process definitions</h1>
+            <p class="oc-page-subtitle">Runtime statistics, incidents, and migration entry points.</p>
+        </div>
+        <span class="oc-status-badge is-info">Total {{totalResult}}</span>
+    </header>
+    <b-form inline class="oc-toolbar migration-toolbar">
+        <b-input-group>
             <b-form-input size="sm" v-model="filter" placeholder="Type to Search"></b-form-input>
             <b-input-group-append>
                 <b-button size="sm" :disabled="!filter" @click="filter = ''">Clear</b-button>
             </b-input-group-append>
         </b-input-group>
-        <b-input class="mb-2 mr-sm-2 mb-sm-0" placeholder="Definition name" size="sm" v-model="maxResult" />
+        <b-input placeholder="Definition name" size="sm" v-model="maxResult" />
         <b-form-checkbox size="sm" id="checkbox1" v-model="latestVersion">Latest Version</b-form-checkbox>
         <b-button size="sm" @click="searchAndCount" variant="outline-success">Search</b-button>
     </b-form>
 
-    <b-table small :busy="!(ready == true)" bordered striped :filter="filter" :fields="fields" :items="processDefinitions" caption-top>
-        <template #table-caption>
-            Total on server {{totalResult}}
-            <div v-if="totalPage>1">
-                <b-pagination-nav align="center" size="sm" base-url="#" :number-of-pages="totalPage" v-model="currentPage" />
-            </div>
-        </template>
-        <template v-slot:cell(show_details)="row">
-            <b-button variant="link" size="sm" @click="rowClick(row)" class="mr-2">{{ row.detailsShowing ? 'Less' : 'More'}}</b-button>
-        </template>
+    <div class="oc-table-wrap">
+        <b-table class="mb-0" small :busy="!(ready == true)" striped :filter="filter" :fields="fields" :items="processDefinitions" caption-top>
+            <template #table-caption>
+                <div class="migration-table-caption">
+                    <span>Total on server {{totalResult}}</span>
+                    <b-pagination-nav v-if="totalPage>1" align="center" size="sm" base-url="#" :number-of-pages="totalPage" v-model="currentPage" />
+                </div>
+            </template>
+            <template v-slot:cell(show_details)="row">
+                <b-button variant="link" size="sm" @click="rowClick(row)">{{ row.detailsShowing ? 'Less' : 'More'}}</b-button>
+            </template>
 
-        <template v-slot:row-details="row">
-            <definition-detail :definitionId="row.item.id"></definition-detail>
-        </template>
+            <template v-slot:row-details="row">
+                <definition-detail :definitionId="row.item.id"></definition-detail>
+            </template>
 
-        <template v-slot:cell(key)="data">
-            <router-link :to="{name:'definition', params:{ definitionId: data.item.id}}">
-                <b>{{data.item.key}}</b>
-                , v{{data.item.version}}
-            </router-link>
-            <br>
-            <small>{{data.item.deployTimeString}}</small>
-        </template>
-    </b-table>
+            <template v-slot:cell(key)="data">
+                <router-link :to="{name:'definition', params:{ definitionId: data.item.id}}">
+                    <b>{{data.item.key}}</b>
+                    , v{{data.item.version}}
+                </router-link>
+                <br>
+                <small>{{data.item.deployTimeString}}</small>
+            </template>
+        </b-table>
+    </div>
     <div v-if="totalPage>1">
         <b-pagination-nav align="center" size="sm" base-url="#" :number-of-pages="totalPage" v-model="currentPage" />
     </div>
@@ -444,6 +452,21 @@ export default {
     }
 };
 </script>
+
+<style>
+.migration-toolbar {
+    align-items: center;
+}
+
+.migration-table-caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: var(--oc-muted);
+}
+</style>
 
 <style>
 .ti-input {

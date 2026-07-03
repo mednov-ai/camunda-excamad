@@ -1,5 +1,5 @@
 <template>
-  <div class="process-detail-page">
+  <div class="process-detail-page oc-page">
     <div class="process-detail-layout">
       <aside class="process-detail-sidebar">
         <nav class="process-section-nav" aria-label="Process detail sections">
@@ -17,7 +17,11 @@
       </aside>
 
       <main class="process-detail-content">
-        <b-card text-variant="dark" class="process-detail-card">
+        <header class="oc-page-header process-instance-header">
+          <div>
+            <h1 class="oc-page-title">Process instance</h1>
+            <p class="oc-page-subtitle">{{ processInstanceId }}</p>
+          </div>
           <div class="process-detail-actions">
             <b-dropdown
               class="process-section-dropdown"
@@ -46,7 +50,9 @@
               <span>Copy link</span>
             </b-btn>
           </div>
+        </header>
 
+        <b-card text-variant="dark" class="process-detail-card oc-panel">
           <detail-incident :processInstanceId="processInstanceId" @retryExternalTask="retryExternalTask"></detail-incident>
 
           <section id="detailProcessStat" class="detail-anchor">
@@ -249,11 +255,15 @@ export default {
   overflow-x: auto;
 }
 
+.process-instance-header {
+  margin-bottom: 1rem;
+}
+
 .process-detail-actions {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
 .process-section-dropdown {

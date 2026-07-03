@@ -1,9 +1,9 @@
 <template>
-  <div class="connections-page">
-    <div class="connections-header">
+  <div class="connections-page oc-page">
+    <div class="connections-header oc-page-header">
       <div>
-        <h2>Connections</h2>
-        <p class="text-muted mb-0">Camunda REST endpoints used by this browser.</p>
+        <h1 class="oc-page-title">Connections</h1>
+        <p class="oc-page-subtitle">Camunda REST endpoints and browser-local auth settings.</p>
       </div>
       <b-button variant="outline-danger" size="sm" @click="clearSavedData">Clear saved data</b-button>
     </div>
@@ -16,11 +16,14 @@
       {{ statusMessage }}
     </b-alert>
 
-    <b-row class="mt-3">
+    <b-row class="connections-grid">
       <b-col cols="12" lg="4">
-        <div class="connection-panel">
-          <div class="connection-panel-header">
-            <h5>Saved profiles</h5>
+        <div class="connection-panel oc-panel">
+          <div class="connection-panel-header oc-panel-header">
+            <div>
+              <h2 class="oc-panel-title">Saved profiles</h2>
+              <p class="oc-panel-subtitle">Switch between Camunda environments.</p>
+            </div>
             <b-button variant="outline-primary" size="sm" @click="newProfile">New</b-button>
           </div>
 
@@ -47,8 +50,13 @@
       </b-col>
 
       <b-col cols="12" lg="8">
-        <div class="connection-panel">
-          <h5>{{ editingProfileId ? 'Edit profile' : 'New profile' }}</h5>
+        <div class="connection-panel oc-panel">
+          <div class="oc-panel-header">
+            <div>
+              <h2 class="oc-panel-title">{{ editingProfileId ? 'Edit profile' : 'New profile' }}</h2>
+              <p class="oc-panel-subtitle">REST URL, counters, and session-first authentication.</p>
+            </div>
+          </div>
 
           <b-form-group label="Profile name" label-for="connection-name">
             <b-form-input
@@ -330,11 +338,6 @@ export default {
 </script>
 
 <style>
-.connections-page {
-  max-width: 1180px;
-  margin: 0 auto;
-}
-
 .connections-header,
 .connection-panel-header,
 .connection-list-row,
@@ -345,15 +348,16 @@ export default {
   gap: 12px;
 }
 
+.connections-grid {
+  row-gap: 1rem;
+}
+
 .connection-panel {
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 16px;
-  background: #fff;
+  height: 100%;
 }
 
 .auth-panel {
-  border-left: 3px solid #0d6efd;
+  border-left: 3px solid var(--oc-primary);
   padding-left: 14px;
   margin-bottom: 16px;
 }

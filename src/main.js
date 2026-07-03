@@ -83,6 +83,7 @@ import fullscreen from '@/plugins/fullscreen';
 import * as BootstrapVueNext from 'bootstrap-vue-next';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
+import '@/styles/operational-console.css';
 import 'bpmn-js/dist/assets/diagram-js.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn.css';
 import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-codes.css';
