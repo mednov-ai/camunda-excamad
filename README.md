@@ -25,9 +25,21 @@ The old Vue 2-only UI and form dependencies have been replaced with local Vue 3-
 
 ## License And Upstream Note
 
-The original open-source Excamad code line is covered by GNU GPLv3.
+This repository is a fork and modified version of
+[KotskinKotskin/camunda-excamad](https://github.com/KotskinKotskin/camunda-excamad),
+originally released under GNU GPLv3.
 
-The upstream README previously noted that, starting from `2024-11-01`, further commercial development moved under StormBPMN and is no longer published as open source. This repository should be treated as the GPLv3 Excamad code line with local modernization work applied.
+Local modifications include migrating the original Vue 2 / Vue CLI application
+to Vue 3 and Vite. These modifications were made on 2026-07-03.
+
+This covered work is distributed under GNU GPLv3; see `LICENSE`. When
+distributing built assets, provide the corresponding source code under the same
+license. Third-party components retain their own license notices.
+
+The upstream README previously noted that, starting from `2024-11-01`, further
+commercial development moved under StormBPMN and is no longer published as open
+source. This repository should be treated as the GPLv3 Excamad code line with
+local modernization work applied.
 
 ## Requirements
 
